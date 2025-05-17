@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title><span>Painel</span>s</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .top-bar {
+      background-color: #d4edda;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+    }
+
+    .buttons, .buttons-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .top-bar button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .top-bar button:hover {
+      background-color: #218838;
+    }
+
+    .buttons button.active {
+      background-color: #138496;
+      color: white;
+      border: 2px solid #117a8b;
+    }
+
+    .buttons button.active:hover {
+      background-color: #117a8b;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .search-filter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px 0;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .search-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #toggleSearchBtn {
+      background-color: #6FCF97;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #searchBar {
+      margin-top: 5px;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 200px;
+      display: none;
+    }
+
+    #toggleSearchBtn:hover {
+      background-color: #5DBB85;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #e1f5e9;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-edit {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .btn-activate {
+      background-color: #6FCF97;
+      color: white;
+    }
+
+    .btn-delete {
+      background-color: #f44336;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      tr {
+        margin-bottom: 15px;
+      }
+      td {
+        padding: 8px;
+        text-align: right;
+        position: relative;
+      }
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        font-weight: bold;
+        text-align: left;
+      }
+      thead {
+        display: none;
+      }
+    }
+
+    .dark-mode {
+      background-color: #2a2a2a;
+      color: white;
+    }
+
+    .dark-mode .top-bar {
+      background-color: #2e413a;
+    }
+
+    .dark-mode table {
+      background-color: #1e1e1e;
+      color: #ffffff;
+    }
+
+    .dark-mode th {
+      background-color: #3a3a3a;
+      color: #ffffff;
+    }
+
+    .dark-mode td {
+      border-color: #555;
+    }
+
+    .dark-mode tr:nth-child(even) {
+      background-color: #2d2d2d;
+    }
+
+    .dark-mode tr:nth-child(odd) {
+      background-color: #1e1e1e;
+    }
+
+    .dark-mode tr:hover {
+      background-color: #444 !important;
+    }
+  </style>
+</head>
+<body>
+
+<style>
+@media (max-width: 600px) {
+  .top-bar button span {
+    display: none;
+  }
+}
+</style>
+<div class="top-bar">
+  <div class="buttons">
+    <button onclick="location.href='/inscritos'"><i class="fas fa-arrow-left"></i> <span>Voltar</span></button>
+    <button class="active" onclick="location.href='/gerenciar'"><i class="fas fa-cogs"></i> <span>Painel</span></button>
+    <button onclick="location.href='/senhas'"><i class="fas fa-user-lock"></i> <span>Senhas</span></button>
+  </div>
+  <div class="buttons-right">
+    <button onclick="toggleDarkMode()" class="icon-btn"><i class="fas fa-moon"></i></button>
+    <button onclick="location.href='/logout'" class="icon-btn"><i class="fas fa-sign-out-alt"></i></button>
+  </div>
+</div>
+
+<div class="container">
+  <h2>Painel de Controle de Cadastros</h2>
+
+  <div class="search-filter">
+    <div class="search-container">
+      <button id="toggleSearchBtn" onclick="toggleSearch()"><i class="fas fa-search"></i></button>
+      <input type="text" id="searchBar" placeholder="Buscar por nome..." onkeyup="filterByName()">
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inscrito in inscritos %}
+      <tr>
+        <td data-label="Nome">{{ inscrito[1] }}</td>
+        <td data-label="Ações">
+          <a href="/editar/{{ inscrito[0] }}" class="btn btn-edit">Editar</a>
+          {% if inscrito[27] == 1 %}
+            <a href="/inativar/{{ inscrito[0] }}" class="btn btn-activate">Inativar</a>
+          {% else %}
+            <a href="/ativar/{{ inscrito[0] }}" class="btn btn-activate">Ativar</a>
+          {% endif %}
+          <a href="/excluir/{{ inscrito[0] }}" class="btn btn-delete" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+function toggleSearch() {
+  var searchBar = document.getElementById('searchBar');
+  searchBar.style.display = (searchBar.style.display === 'none' || searchBar.style.display === '') ? 'block' : 'none';
+}
+
+function filterByName() {
+  var input = document.getElementById("searchBar");
+  var filter = input.value.toLowerCase();
+  var table = document.querySelector("table");
+  var trs = table.getElementsByTagName("tr");
+
+  for (var i = 1; i < trs.length; i++) {
+    var td = trs[i].getElementsByTagName("td")[0];
+    if (td) {
+      var nome = td.innerText.toLowerCase();
+      trs[i].style.display = nome.includes(filter) ? "" : "none";
+    }
+  }
+}
+
+function toggleDarkMode() {
+  const isDark = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
+}
+
+window.onload = function () {
+  if (localStorage.getItem('modoEscuro') === 'ativado') {
+    document.body.classList.add('dark-mode');
+  }
+}
+</script>
+
+{% include 'footer.html' %}
+</body>
+</html>

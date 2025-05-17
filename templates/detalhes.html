@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detalhes do Cadastro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <style>
+    html { box-sizing: border-box; }
+    *, *:before, *:after { box-sizing: inherit; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      font-size: 15px;
+    }
+
+    .top-bar {
+      background-color: #d4edda;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .top-bar .left { justify-content: flex-start; }
+    .top-bar .right { margin-left: auto; display: flex; gap: 10px; }
+
+    .top-bar button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .top-bar button:hover {
+      background-color: #218838;
+    }
+
+    @page {
+      size: A4;
+      margin: 10mm;
+    }
+
+    @media print {
+      .top-bar { display: none; }
+      body { background: white; font-size: 9px; line-height: 1.1; margin: 0; padding: 0; }
+      .container { padding: 0; }
+      .card { box-shadow: none; border-radius: 0; padding: 0; margin: 0 0 5px; }
+      .card h2 {
+        font-size: 11px;
+        padding-bottom: 2px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid #666;
+      }
+
+      .line-entry {
+        border-bottom: 1px dashed #ccc;
+        border-left: 3px solid #ccc;
+        margin-left: 4px;
+        padding: 2px 4px 2px 6px;
+      }
+
+      .line-entry.block {
+        display: block;
+        padding-bottom: 6px;
+      }
+
+      label {
+        font-weight: bold;
+        margin: 0;
+        font-size: 9px;
+        display: block;
+      }
+
+      .line-entry p { margin: 0; }
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1.nome-inscrito {
+      text-align: center;
+      font-size: 24px;
+      color: #2c3e50;
+      margin-top: 20px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      padding: 15px;
+      margin-bottom: 15px;
+      page-break-inside: avoid;
+      transition: 0.2s ease-in-out;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 4px;
+    }
+
+    .line-entry {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 10px;
+    }
+
+    .line-entry.block {
+      display: block;
+      padding: 6px 10px;
+    }
+
+    .line-entry:nth-child(even), .line-entry.block:nth-child(even) { background: #f6fdf6; }
+    .line-entry:nth-child(odd), .line-entry.block:nth-child(odd) { background: #ffffff; }
+
+    label {
+      font-weight: bold;
+      color: #555;
+    }
+
+    p.valor {
+      margin: 0;
+      color: #222;
+    }
+
+    .dark-mode {
+      background-color: #2a2a2a;
+      color: white;
+    }
+
+    .dark-mode .top-bar {
+      background-color: #2e413a;
+    }
+
+    .dark-mode .card {
+      background-color: #1e1e1e;
+      color: white;
+    }
+
+    .dark-mode .card:hover {
+      box-shadow: 0 0 12px rgba(255,255,255,0.15);
+    }
+
+    .dark-mode label,
+    .dark-mode h2,
+    .dark-mode p.valor {
+      color: #ccc;
+    }
+
+    .dark-mode .line-entry:nth-child(even),
+    .dark-mode .line-entry.block:nth-child(even) {
+      background-color: #303e30;
+    }
+
+    .dark-mode .line-entry:nth-child(odd),
+    .dark-mode .line-entry.block:nth-child(odd) {
+      background-color: #262b26;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="left">
+    <button onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Voltar</button>
+  </div>
+  <div class="right">
+    <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+    <button onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
+  </div>
+</div>
+
+<div class="container">
+  <h1 class="nome-inscrito">{{ inscrito[1] }}</h1>
+
+  <div class="card">
+    <h2>👤 Dados Pessoais</h2>
+    <div class="line-entry"><label>Nascimento:</label><p class="valor">{{ inscrito[2] }}</p></div>
+    <div class="line-entry"><label>Telefone:</label><p class="valor">{{ inscrito[3] }}</p></div>
+    <div class="line-entry"><label>Email:</label><p class="valor">{{ inscrito[4] }}</p></div>
+    <div class="line-entry"><label>Endereço:</label><p class="valor">{{ inscrito[5] }}, {{ inscrito[6] }} - {{ inscrito[7] }}</p></div>
+    <div class="line-entry"><label>Bairro:</label><p class="valor">{{ inscrito[8] }}</p></div>
+    <div class="line-entry"><label>Cidade:</label><p class="valor">{{ inscrito[9] }} - {{ inscrito[10] }}</p></div>
+    <div class="line-entry"><label>Profissão:</label><p class="valor">{{ inscrito[11] }}</p></div>
+    <div class="line-entry"><label>Estado Civil:</label><p class="valor">{{ inscrito[12] }}</p></div>
+    <div class="line-entry"><label>Batizado:</label><p class="valor">{{ inscrito[13] }}</p></div>
+  </div>
+
+  <div class="card">
+    <h2>🎵 Perfil Ministerial</h2>
+    <div class="line-entry"><label>Perfil:</label><p class="valor">{{ inscrito[14] }}</p></div>
+    {% if inscrito[14] == 'Instrumentista' or inscrito[14] == 'Ambos' %}
+      <div class="line-entry"><label>Instrumento:</label><p class="valor">{{ inscrito[18] }}</p></div>
+      <div class="line-entry"><label>Outro instrumento:</label><p class="valor">{{ inscrito[19] }}</p></div>
+      <div class="line-entry"><label>Sabe ler cifras:</label><p class="valor">{{ inscrito[20] }}</p></div>
+      <div class="line-entry"><label>Tira música de ouvido:</label><p class="valor">{{ inscrito[21] }}</p></div>
+      <div class="line-entry"><label>Nível técnico:</label><p class="valor">{{ inscrito[22] }}</p></div>
+    {% endif %}
+    {% if inscrito[14] == 'Cantor' or inscrito[14] == 'Ambos' %}
+      <div class="line-entry"><label>Classificação Vocal:</label><p class="valor">{{ inscrito[15] }}</p></div>
+      <div class="line-entry"><label>Aulas de canto:</label><p class="valor">{{ inscrito[16] }}</p></div>
+      <div class="line-entry"><label>Segunda voz:</label><p class="valor">{{ inscrito[17] }}</p></div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>📆 Disponibilidade</h2>
+    <div class="line-entry"><label>Ensaios:</label><p class="valor">{{ inscrito[23] }}</p></div>
+    <div class="line-entry"><label>Cultos:</label><p class="valor">{{ inscrito[24] }}</p></div>
+  </div>
+
+  <div class="card">
+    <h2>📝 Motivação e Experiência</h2>
+    <div class="line-entry block">
+      <label>Motivação:</label>
+      <p class="valor">{{ inscrito[25] }}</p>
+    </div>
+    <div class="line-entry block">
+      <label>Experiência:</label>
+      <p class="valor">{{ inscrito[26] }}</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
+  }
+  window.onload = function () {
+    if (localStorage.getItem('modoEscuro') === 'ativado') {
+      document.body.classList.add('dark-mode');
+    }
+  }
+</script>
+
+</body>
+</html>

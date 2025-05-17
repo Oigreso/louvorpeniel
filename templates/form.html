@@ -1,0 +1,500 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro Ministério de Louvor</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+  .logo-peniel {
+  width: 120px;
+  margin-bottom: 10px;
+  transition: filter 0.3s ease;
+}
+  body {
+    font-family: Arial, sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 0px;
+  }
+  .container {
+    max-width: 1000px;
+    margin: auto;
+    padding-bottom: 80px; /* Espaço entre botão e rodapé */
+  }
+  .card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  .linha {
+    display: flex;
+    gap: 10px;
+  }
+  .linha > div {
+    flex: 1;
+  }
+  label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #555;
+  }
+  input[type="text"], input[type="email"], input[type="date"], textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: background-color 0.3s;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+    background-color: #f2fbf2; /* Verde claríssimo no campo focado */
+    outline: none;
+  }
+  .submit-btn {
+    text-align: center;
+    margin-top: 30px;
+  }
+  .submit-btn button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  .submit-btn button:hover {
+    background-color: #45a049;
+  }
+.icon-btn {
+  background-color: #28a745;
+  border: none;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.icon-btn:hover {
+  background-color: #218838;
+}
+
+
+ /* Modo escuro */
+        .dark-mode { background-color: #2a2a2a; color: white; }
+        .dark-mode .card { background: #1e1e1e; color: white; box-shadow: 0 0 10px rgba(255,255,255,0.1); }
+        .dark-mode .top-bar { background-color: #2e413a; }
+
+                /* Modo escuro para tabela */
+        .dark-mode table {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .dark-mode th {
+            background-color: #3a3a3a;
+            color: #ffffff;
+        }
+
+        .dark-mode td {
+            border-color: #555;
+        }
+
+        .dark-mode tr:nth-child(even) {
+            background-color: #2d2d2d;
+        }
+
+        .dark-mode tr:nth-child(odd) {
+            background-color: #1e1e1e;
+        }
+
+        .dark-mode tr:hover {
+            background-color: #444 !important;
+        }
+
+        .dark-mode input[type="text"],
+        .dark-mode input[type="email"],
+        .dark-mode input[type="date"],
+        .dark-mode textarea,
+        .dark-mode input[type="password"],
+        .dark-mode select {
+         background-color: #2d2d2d;
+          color: #bebebe;
+          border: 1px solid #555;
+        }
+        .dark-mode label,
+        .dark-mode h3,
+        .dark-mode h4,
+        .dark-mode h2,
+        .dark-mode h1,
+        .dark-mode p {
+            color: #bdbdbd !important;
+        }
+
+        .dark-mode input::placeholder,
+        .dark-mode textarea::placeholder {
+          color: #aaa;
+        }
+        .dark-mode .login-container {
+          background-color: #1e1e1e;
+          box-shadow: 0 0 10px rgba(255,255,255,0.1);
+        }
+        .dark-mode .logo-peniel {
+          filter: invert(1) brightness(1.2);
+        }
+        .dark-mode input[type="text"]:focus,
+        .dark-mode input[type="email"]:focus,
+        .dark-mode input[type="date"]:focus,
+        .dark-mode textarea:focus,
+        .dark-mode select:focus {
+        background-color: #686868;
+        outline: none;
+        }
+        .dark-mode footer.footer {
+          background-color: #1f2f28;
+          border-top: 1px solid #444;
+          color: #bdbdbd;
+        }
+
+        .dark-mode footer.footer .versao {
+           color: #aaa;
+        }
+
+  
+.top-bar {
+  background-color: #d4edda;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+  width: 100%;       /* Garante que a barra ocupe 100% da largura */
+  margin: 0;        /* Remove qualquer margem interna da top-bar */
+}
+.top-bar .buttons {
+  display: flex;
+  gap: 10px;
+  margin: 0;  /* Garanta que não há margens */
+  padding: 0; /* Garanta que não há padding */
+}
+.top-bar button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.top-bar button:hover {
+  background-color: #218838;
+}
+footer.footer {
+  background-color: #e6f0eb;
+  padding: 20px 10px;
+  text-align: center;
+  font-size: 14px;
+  border-top: 1px solid #ccc;
+  color: #2d6a4f;
+}
+
+footer.footer .versao {
+  font-size: 12px;
+  color: #555;
+}
+</style>
+
+<!-- Máscara e Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+$(document).ready(function(){
+  $('#telefone').mask('(00) 0 0000-0000');
+});
+
+function validarEmail(input) {
+  const email = input.value;
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert('Por favor, insira um email válido.');
+    input.value = '';
+    input.focus();
+  }
+}
+
+function mostrarOutroInstrumento() {
+  var instrumentoSelect = document.getElementById('instrumentos');
+  var outroInput = document.getElementById('outro_instrumento');
+  if (instrumentoSelect && instrumentoSelect.value === 'Outro') {
+    outroInput.style.display = 'block';
+  } else {
+    outroInput.style.display = 'none';
+  }
+}
+
+function atualizarPerfil() {
+  var perfil = document.getElementById('perfil').value;
+  var blocoVoz = document.getElementById('bloco-voz');
+  var blocoInstrumento = document.getElementById('bloco-instrumento');
+
+  if (perfil === "Cantor(a)") {
+    blocoVoz.style.display = "block";
+    blocoInstrumento.style.display = "none";
+  } else if (perfil === "Instrumentista") {
+    blocoVoz.style.display = "none";
+    blocoInstrumento.style.display = "block";
+  } else if (perfil === "Ambos") {
+    blocoVoz.style.display = "block";
+    blocoInstrumento.style.display = "block";
+  } else {
+    blocoVoz.style.display = "none";
+    blocoInstrumento.style.display = "none";
+  }
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+}
+</script>
+</head>
+<body>
+<div class="top-bar">
+  <div class="buttons">
+    <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+  </div>
+</div>
+<div class="container">
+
+<div class="logo-container" style="text-align: center; margin-bottom: 20px;">
+  <img src="{{ url_for('static', filename='peniel-removebg-preview.png') }}" alt="Logo Peniel" class="logo-peniel">
+  <h1 style="margin: 0;">PENIEL GUILHERMINA</h1>
+  <h2 style="margin-top: 5px;">Cadastro para o Ministério de Louvor</h2>
+</div>
+
+<form method="POST">
+
+<div class="card">
+  <h2>👤 Dados Pessoais</h2>
+  <label>Nome Completo:</label>
+  <input type="text" name="nome" required>
+
+  <label>Data de Nascimento:</label>
+  <input type="date" name="nascimento" required>
+
+  <label>Telefone (WhatsApp):</label>
+  <input type="text" id="telefone" name="telefone" inputmode="numeric" required>
+
+  <label>Email:</label>
+  <input type="email" name="email" onchange="validarEmail(this)" required>
+
+  <div class="linha">
+    <div>
+      <label>Rua/Avenida:</label>
+      <input type="text" name="endereco" required>
+    </div>
+    <div>
+      <label>Número:</label>
+      <input type="text" name="numero" inputmode="numeric" required>
+    </div>
+    <div>
+      <label>Complemento:</label>
+      <input type="text" name="complemento">
+    </div>
+  </div>
+
+  <div class="linha">
+    <div>
+      <label>Bairro:</label>
+      <input type="text" name="bairro" required>
+    </div>
+    <div>
+      <label>Cidade:</label>
+      <input type="text" name="cidade" required>
+    </div>
+    <div>
+      <label>Estado:</label>
+      <select name="estado" required>
+        <option value="">Selecione</option>
+        <option value="SP">SP</option>
+        <option value="RJ">RJ</option>
+        <option value="MG">MG</option>
+        <option value="RS">RS</option>
+        <option value="PR">PR</option>
+        <option value="SC">SC</option>
+      </select>
+    </div>
+  </div>
+
+  <label>Profissão:</label>
+  <input type="text" name="profissao">
+
+  <label>Estado Civil:</label>
+  <select name="estado_civil" required>
+    <option value="">Selecione</option>
+    <option value="Solteiro(a)">Solteiro(a)</option>
+    <option value="Casado(a)">Casado(a)</option>
+    <option value="Divorciado(a)">Divorciado(a)</option>
+    <option value="Viuvo(a)">Viuvo(a)</option>
+  </select>
+
+  <label>É Batizado nas Águas?</label>
+  <select name="batizado" required>
+    <option value="">Selecione</option>
+    <option value="Sim">Sim</option>
+    <option value="Não">Não</option>
+  </select>
+</div>
+
+<div class="card">
+  <h2>🎵 Perfil Ministerial</h2>
+
+  <label>Perfil:</label>
+  <select name="perfil" id="perfil" onchange="atualizarPerfil()" required>
+    <option value="">Selecione</option>
+    <option value="Cantor(a)">Cantor(a)</option>
+    <option value="Instrumentista">Instrumentista</option>
+    <option value="Ambos">Ambos</option>
+  </select>
+
+  <div id="bloco-voz" style="display:none;">
+    <label>Classificação Vocal:</label>
+    <select name="voz">
+      <option value="">Selecione</option>
+      <option value="Soprano">Soprano</option>
+      <option value="Contralto">Contralto</option>
+      <option value="Tenor">Tenor</option>
+      <option value="Baixo">Baixo</option>
+      <option value="Barítono">Barítono</option>
+      <option value="Não sei">Não sei</option>
+    </select>
+
+    <label>Faz aulas de canto?</label>
+    <select name="aulas">
+      <option value="">Selecione</option>
+      <option value="Sim">Sim</option>
+      <option value="Não">Não</option>
+      <option value="Já fiz">Já fiz</option>
+    </select>
+
+    <label>Tem facilidade para cantar em segunda voz?</label>
+    <select name="segunda_voz">
+      <option value="">Selecione</option>
+      <option value="Sim">Sim</option>
+      <option value="Não">Não</option>
+      <option value="Estou aprendendo">Estou aprendendo</option>
+    </select>
+  </div>
+
+  <div id="bloco-instrumento" style="display:none;">
+    <label>Instrumento que toca:</label>
+    <select name="instrumentos" id="instrumentos" onchange="mostrarOutroInstrumento()">
+      <option value="">Selecione</option>
+      <option value="Violão">Violão</option>
+      <option value="Guitarra">Guitarra</option>
+      <option value="Baixo">Baixo</option>
+      <option value="Teclado">Teclado</option>
+      <option value="Bateria">Bateria</option>
+      <option value="Outro">Outro</option>
+    </select>
+    <input type="text" name="outro_instrumento" id="outro_instrumento" placeholder="Digite o instrumento" style="display:none; margin-top:10px;">
+
+    <label>Sabe ler cifras?</label>
+    <select name="cifras">
+      <option value="">Selecione</option>
+      <option value="Sim">Sim</option>
+      <option value="Não">Não</option>
+    </select>
+
+    <label>Consegue tirar músicas de ouvido?</label>
+    <select name="ouvido">
+      <option value="">Selecione</option>
+      <option value="Sim">Sim</option>
+      <option value="Não">Não</option>
+    </select>
+
+    <label>Nível Técnico:</label>
+    <select name="nivel_tecnico">
+      <option value="">Selecione</option>
+      <option value="Iniciante">Iniciante</option>
+      <option value="Intermediário">Intermediário</option>
+      <option value="Avançado">Avançado</option>
+    </select>
+  </div>
+</div>
+
+<div class="card">
+  <h2>📅 Disponibilidade</h2>
+  <label>Disponível para ensaios semanais?</label>
+  <select name="ensaios" required>
+    <option value="">Selecione</option>
+    <option value="Sim">Sim</option>
+    <option value="Não">Não</option>
+    <option value="A combinar">A combinar</option>
+  </select>
+
+  <label>Disponível para cultos?</label>
+  <select name="cultos" required>
+    <option value="">Selecione</option>
+    <option value="Sim">Sim</option>
+    <option value="Não">Não</option>
+    <option value="Parcial">Parcial</option>
+  </select>
+</div>
+
+<div class="card">
+  <h2>📝 Motivação e Experiência</h2>
+  <label>Por que deseja participar do Ministério de Louvor?</label>
+  <textarea name="motivacao" rows="3" placeholder="*Se você já faz parte do Ministério de Louvor da Guilhermina nao precisa preencher esse campo."></textarea>
+
+  <label>Tem experiência com MULTITRACK e CLICK?</label>
+  <textarea name="experiencia" rows="8" placeholder="Nos conte também sobre como e quando você começou na area da música, se ja participou em outros Ministerios ou Bandas."></textarea>
+</div>
+
+<div class="submit-btn">
+  <button type="submit">Enviar Cadastro</button>
+</div>
+
+</form>
+</div>
+<script>
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
+}
+
+// Aplica o modo escuro automaticamente se estiver ativado
+window.onload = function () {
+    if (localStorage.getItem('modoEscuro') === 'ativado') {
+        document.body.classList.add('dark-mode');
+    }
+}
+</script>
+
+{% include 'footer.html' %}
+
+
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acesso Negado</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <style>
+    html { box-sizing: border-box; }
+    *, *:before, *:after { box-sizing: inherit; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .top-bar {
+      background-color: #d4edda;
+      padding: 10px 20px;
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+      width: 100%;
+    }
+
+    .top-bar .buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .top-bar button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .top-bar button:hover {
+      background-color: #218838;
+    }
+
+    .logo-peniel {
+      width: 120px;
+      margin-bottom: 10px;
+      transition: filter 0.3s ease;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .painel-usuario {
+      background: #e0f7ec;
+      padding: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #5DBB85;
+      font-size: 16px;
+    }
+
+    .aviso {
+      background-color: #ffe6e6;
+      display: inline-block;
+      padding: 20px 30px;
+      border: 2px solid #ff6666;
+      border-radius: 10px;
+      color: #ff3333;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .voltar-btn {
+      margin-top: 30px;
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #5DBB85;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    .voltar-btn:hover {
+      background-color: #4aa96c;
+    }
+
+    footer.footer {
+      background-color: #e6f0eb;
+      padding: 20px 10px;
+      text-align: center;
+      font-size: 14px;
+      border-top: 1px solid #ccc;
+      color: #2d6a4f;
+    }
+
+    footer.footer .versao {
+      font-size: 12px;
+      color: #555;
+    }
+
+    /* Modo escuro */
+    .dark-mode {
+      background-color: #2a2a2a;
+      color: white;
+    }
+
+    .dark-mode .card {
+      background: #1e1e1e;
+      color: white;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    }
+
+    .dark-mode .top-bar {
+      background-color: #1b362c;
+    }
+
+    .dark-mode .painel-usuario {
+      background-color: #1f2f28;
+      border-bottom: 2px solid #4aa96c;
+      color: #ccc;
+    }
+
+    .dark-mode .aviso {
+      background-color: #4d1f1f;
+      border-color: #ff6666;
+      color: #ffcfcf;
+    }
+
+    .dark-mode .voltar-btn {
+      background-color: #4aa96c;
+    }
+
+    .dark-mode .voltar-btn:hover {
+      background-color: #397d57;
+    }
+
+    .dark-mode .logo-peniel {
+      filter: invert(1) brightness(1.2);
+    }
+
+    .dark-mode footer.footer {
+      background-color: #1f2f28;
+      border-top: 1px solid #444;
+      color: #bdbdbd;
+    }
+
+    .dark-mode footer.footer .versao {
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="buttons">
+    <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="logo-container">
+    <img src="{{ url_for('static', filename='peniel-removebg-preview.png') }}" alt="Logo Peniel" class="logo-peniel">
+  </div>
+
+  <div class="painel-usuario">
+    Logado como: <strong>{{ session['usuario'] }}</strong> | Nível: <strong>{{ session['nivel'] }}</strong>
+  </div>
+
+  <div class="aviso">
+    ❌ Você não possui permissão para acessar essa página.
+  </div>
+
+  <br>
+
+  <a class="voltar-btn" href="/inscritos">Voltar ao Menu Inicial</a>
+</div>
+
+<script>
+  function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
+  }
+
+  window.onload = function () {
+    if (localStorage.getItem('modoEscuro') === 'ativado') {
+      document.body.classList.add('dark-mode');
+    }
+  }
+</script>
+
+{% include 'footer.html' %}
+</body>
+</html>

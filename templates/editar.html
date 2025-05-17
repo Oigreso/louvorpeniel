@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Cadastro</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="email"], input[type="date"], textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .submit-btn {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .submit-btn button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .submit-btn button:hover {
+      background-color: #45a049;
+    }
+/* Modo escuro */
+        .dark-mode { background-color: #2a2a2a; color: white; }
+        .dark-mode .card { background: #1e1e1e; color: white; }
+        .dark-mode .top-bar { background-color: #2a3531; }
+
+                /* Modo escuro para tabela */
+        .dark-mode table {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .dark-mode th {
+            background-color: #3a3a3a;
+            color: #ffffff;
+        }
+
+        .dark-mode td {
+            border-color: #555;
+        }
+
+        .dark-mode tr:nth-child(even) {
+            background-color: #2d2d2d;
+        }
+
+        .dark-mode tr:nth-child(odd) {
+            background-color: #1e1e1e;
+        }
+
+        .dark-mode tr:hover {
+            background-color: #444 !important;
+        }   
+
+
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Editar Cadastro</h1>
+  <form method="POST">
+    <label>Nome</label>
+    <input type="text" name="nome" value="{{ inscrito[1] }}">
+
+    <label>Data de Nascimento</label>
+    <input type="date" name="nascimento" value="{{ inscrito[2] }}">
+
+    <label>Telefone</label>
+    <input type="text" name="telefone" value="{{ inscrito[3] }}">
+
+    <label>Email</label>
+    <input type="email" name="email" value="{{ inscrito[4] }}">
+
+    <label>Endereço</label>
+    <input type="text" name="endereco" value="{{ inscrito[5] }}">
+
+    <label>Número</label>
+    <input type="text" name="numero" value="{{ inscrito[6] }}">
+
+    <label>Complemento</label>
+    <input type="text" name="complemento" value="{{ inscrito[7] }}">
+
+    <label>Bairro</label>
+    <input type="text" name="bairro" value="{{ inscrito[8] }}">
+
+    <label>Cidade</label>
+    <input type="text" name="cidade" value="{{ inscrito[9] }}">
+
+    <label>Estado</label>
+    <input type="text" name="estado" value="{{ inscrito[10] }}">
+
+    <label>Profissão</label>
+    <input type="text" name="profissao" value="{{ inscrito[11] }}">
+
+    <label>Estado Civil</label>
+    <input type="text" name="estado_civil" value="{{ inscrito[12] }}">
+
+    <label>Batizado nas Águas</label>
+    <input type="text" name="batizado" value="{{ inscrito[13] }}">
+
+    <label>Perfil</label>
+    <input type="text" name="perfil" value="{{ inscrito[14] }}">
+
+    <label>Classificação Vocal</label>
+    <input type="text" name="voz" value="{{ inscrito[15] }}">
+
+    <label>Aulas de Canto</label>
+    <input type="text" name="aulas" value="{{ inscrito[16] }}">
+
+    <label>Facilidade em Segunda Voz</label>
+    <input type="text" name="segunda_voz" value="{{ inscrito[17] }}">
+
+    <label>Instrumentos</label>
+    <input type="text" name="instrumentos" value="{{ inscrito[18] }}">
+
+    <label>Outro Instrumento</label>
+    <input type="text" name="outro_instrumento" value="{{ inscrito[19] }}">
+
+    <label>Sabe ler Cifras</label>
+    <input type="text" name="cifras" value="{{ inscrito[20] }}">
+
+    <label>Consegue tirar de ouvido</label>
+    <input type="text" name="ouvido" value="{{ inscrito[21] }}">
+
+    <label>Nível Técnico</label>
+    <input type="text" name="nivel_tecnico" value="{{ inscrito[22] }}">
+
+    <label>Disponível para Ensaios</label>
+    <input type="text" name="ensaios" value="{{ inscrito[23] }}">
+
+    <label>Disponível para Cultos</label>
+    <input type="text" name="cultos" value="{{ inscrito[24] }}">
+
+    <label>Motivação</label>
+    <textarea name="motivacao">{{ inscrito[25] }}</textarea>
+
+    <label>Experiência</label>
+    <textarea name="experiencia">{{ inscrito[26] }}</textarea>
+
+    <div class="submit-btn">
+      <button type="submit">Salvar Alterações</button>
+    </div>
+  </form>
+</div>
+
+<script>
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
+}
+
+// Aplica o modo escuro automaticamente se estiver ativado
+window.onload = function () {
+    if (localStorage.getItem('modoEscuro') === 'ativado') {
+        document.body.classList.add('dark-mode');
+    }
+}
+</script>
+
+</body>
+</html>
