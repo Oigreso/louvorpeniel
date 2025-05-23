@@ -446,6 +446,29 @@ def editar_usuario(id):
     finally:
         conn.close()
 
+conn = sqlite3.connect('banco.db')
+cursor = conn.cursor()
+
+cursor.execute('DROP TABLE IF EXISTS audicoes')
+
+cursor.execute('''
+CREATE TABLE audicoes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    telefone TEXT NOT NULL,
+    musica TEXT NOT NULL,
+    link_youtube TEXT NOT NULL,
+    tom TEXT NOT NULL,
+    instrumento_voz TEXT, 
+    data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+''')
+
+conn.commit()
+conn.close()
+
+print("Tabela AUDICOES criada com sucesso!")
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
