@@ -1,6 +1,7 @@
 
 from flask import Flask, render_template, request, redirect, url_for, send_file, session, Response
 import sqlite3
+import psycopg2
 import csv
 import json
 import io
@@ -45,9 +46,10 @@ def calcular_idade(data_nascimento):
     return None
 
 
+DATABASE_URL = "postgresql://banco_gc0v_user:0yP4ybAuaGiG7XC5Fsq1cn3Tzjjx6s0m@dpg-d0ogdqemcj7s73d5icug-a/banco_gc0v"
+
 def conectar():
-    caminho_db = os.path.join(os.path.dirname(__file__), 'banco.db')
-    return sqlite3.connect(caminho_db)
+    return psycopg2.connect(DATABASE_URL)
 
 # ===============================
 # Login e Controle de Sessão
