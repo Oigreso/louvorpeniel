@@ -151,21 +151,30 @@ def inscritos():
     for inscrito in inscritos:
         inscrito = list(inscrito)
 
-        # Primeiro: Calcular a idade ANTES de alterar o formato da data
-        idade = calcular_idade(inscrito[2])
-        inscrito.append(idade)  # adiciona idade no final
+        # Calcular idade de forma segura
+        try:
+            if inscrito[2] is not None:
+                idade = calcular_idade(str(inscrito[2]))
+            else:
+                idade = None
+        except Exception:
+            idade = None
+        inscrito.append(idade)
 
-        # Depois: Formatar a data de nascimento para DD/MM/AAAA
-        if inscrito[2]:
-            try:
-                data = datetime.strptime(inscrito[2], "%Y-%m-%d")
+        # Formatar data de nascimento de forma segura
+        try:
+            if inscrito[2] is not None:
+                data = datetime.strptime(str(inscrito[2]), "%Y-%m-%d")
                 inscrito[2] = data.strftime("%d/%m/%Y")
-            except:
-                pass
+            else:
+                inscrito[2] = "Data não informada"
+        except Exception:
+            inscrito[2] = "Data inválida"
 
         inscritos_formatados.append(inscrito)
 
     return render_template('inscritos.html', inscritos=inscritos_formatados)
+
 
 
 @app.route('/gerenciar')
