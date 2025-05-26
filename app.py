@@ -134,6 +134,7 @@ def login():
         conn = conectar()
         cursor = conn.cursor()
         cursor.execute("SELECT senha, nivel FROM usuarios WHERE usuario = %s", (usuario,))
+        cursor.execute("SELECT senha, nivel FROM usuarios WHERE usuario = %s", (usuario,))
         resultado = cursor.fetchone()
         conn.close()
 
@@ -264,7 +265,25 @@ def inscritos():
         try:
             if inscrito[2] is not None:
                 data = datetime.strptime(str(inscrito[2]), "%Y-%m-%d")
+        # Calcular idade de forma segura
+        try:
+            if inscrito[2] is not None:
+                idade = calcular_idade(str(inscrito[2]))
+            else:
+                idade = None
+        except Exception:
+            idade = None
+        inscrito.append(idade)
+
+        # Formatar data de nascimento de forma segura
+        try:
+            if inscrito[2] is not None:
+                data = datetime.strptime(str(inscrito[2]), "%Y-%m-%d")
                 inscrito[2] = data.strftime("%d/%m/%Y")
+            else:
+                inscrito[2] = "Data não informada"
+        except Exception:
+            inscrito[2] = "Data inválida"
             else:
                 inscrito[2] = "Data não informada"
         except Exception:
@@ -273,6 +292,7 @@ def inscritos():
         inscritos_formatados.append(inscrito)
 
     return render_template('inscritos.html', inscritos=inscritos_formatados)
+
 
 
 
@@ -304,6 +324,7 @@ def inativar(id):
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute('UPDATE inscritos SET ativo = 0 WHERE id = %s', (id,))
+    cursor.execute('UPDATE inscritos SET ativo = 0 WHERE id = %s', (id,))
     conn.commit()
     conn.close()
     return redirect(url_for('gerenciar'))
@@ -315,6 +336,7 @@ def ativar(id):
 
     conn = conectar()
     cursor = conn.cursor()
+    cursor.execute('UPDATE inscritos SET ativo = 1 WHERE id = %s', (id,))
     cursor.execute('UPDATE inscritos SET ativo = 1 WHERE id = %s', (id,))
     conn.commit()
     conn.close()
@@ -357,6 +379,11 @@ def editar(id):
                 voz=%s, aulas=%s, segunda_voz=%s, instrumentos=%s, outro_instrumento=%s, cifras=%s, ouvido=%s,
                 nivel_tecnico=%s, ensaios=%s, cultos=%s, motivacao=%s, experiencia=%s
             WHERE id=%s
+                nome=%s, nascimento=%s, telefone=%s, email=%s, endereco=%s, numero=%s, complemento=%s,
+                bairro=%s, cidade=%s, estado=%s, profissao=%s, estado_civil=%s, batizado=%s, perfil=%s,
+                voz=%s, aulas=%s, segunda_voz=%s, instrumentos=%s, outro_instrumento=%s, cifras=%s, ouvido=%s,
+                nivel_tecnico=%s, ensaios=%s, cultos=%s, motivacao=%s, experiencia=%s
+            WHERE id=%s
         ''', (
             dados.get('nome'), dados.get('nascimento'), dados.get('telefone'), dados.get('email'),
             dados.get('endereco'), dados.get('numero'), dados.get('complemento'), dados.get('bairro'),
@@ -382,6 +409,7 @@ def detalhes(id):
 
     conn = conectar()
     cursor = conn.cursor()
+    cursor.execute('SELECT * FROM inscritos WHERE id = %s', (id,))
     cursor.execute('SELECT * FROM inscritos WHERE id = %s', (id,))
     inscrito = cursor.fetchone()
     conn.close()
@@ -495,6 +523,7 @@ def novo_usuario():
         conn = conectar()
         cursor = conn.cursor()
         cursor.execute("INSERT INTO usuarios (usuario, senha, nivel) VALUES (%s, %s, %s)", (usuario, senha, nivel))
+        cursor.execute("INSERT INTO usuarios (usuario, senha, nivel) VALUES (%s, %s, %s)", (usuario, senha, nivel))
         conn.commit()
         conn.close()
         return redirect(url_for('senhas'))
@@ -505,6 +534,7 @@ def novo_usuario():
 def excluir_usuario(id):
     conn = conectar()
     cursor = conn.cursor()
+    cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
     cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
     conn.commit()
     conn.close()
@@ -537,10 +567,12 @@ def editar_usuario(id):
                 cursor.execute("UPDATE usuarios SET usuario = %s, senha = %s, nivel = %s WHERE id = %s", (usuario, senha, nivel, id))
             else:
                 cursor.execute("UPDATE usuarios SET usuario = %s, nivel = %s WHERE id = %s", (usuario, nivel, id))
+                cursor.execute("UPDATE usuarios SET usuario = %s, nivel = %s WHERE id = %s", (usuario, nivel, id))
 
             conn.commit()
             return redirect(url_for('senhas'))
 
+        cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
         cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
         usuario = cursor.fetchone()
         if not usuario:
