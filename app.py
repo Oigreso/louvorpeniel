@@ -134,7 +134,6 @@ def login():
         conn = conectar()
         cursor = conn.cursor()
         cursor.execute("SELECT senha, nivel FROM usuarios WHERE usuario = %s", (usuario,))
-        cursor.execute("SELECT senha, nivel FROM usuarios WHERE usuario = %s", (usuario,))
         resultado = cursor.fetchone()
         conn.close()
 
@@ -248,6 +247,7 @@ def inscritos():
     conn.close()
 
     inscritos_formatados = []
+
     for inscrito in inscritos:
         inscrito = list(inscrito)
 
@@ -259,20 +259,7 @@ def inscritos():
                 idade = None
         except Exception:
             idade = None
-        inscrito.append(idade)
 
-        # Formatar data de nascimento de forma segura
-        try:
-            if inscrito[2] is not None:
-                data = datetime.strptime(str(inscrito[2]), "%Y-%m-%d")
-        # Calcular idade de forma segura
-        try:
-            if inscrito[2] is not None:
-                idade = calcular_idade(str(inscrito[2]))
-            else:
-                idade = None
-        except Exception:
-            idade = None
         inscrito.append(idade)
 
         # Formatar data de nascimento de forma segura
@@ -280,10 +267,6 @@ def inscritos():
             if inscrito[2] is not None:
                 data = datetime.strptime(str(inscrito[2]), "%Y-%m-%d")
                 inscrito[2] = data.strftime("%d/%m/%Y")
-            else:
-                inscrito[2] = "Data não informada"
-        except Exception:
-            inscrito[2] = "Data inválida"
             else:
                 inscrito[2] = "Data não informada"
         except Exception:
@@ -324,7 +307,6 @@ def inativar(id):
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute('UPDATE inscritos SET ativo = 0 WHERE id = %s', (id,))
-    cursor.execute('UPDATE inscritos SET ativo = 0 WHERE id = %s', (id,))
     conn.commit()
     conn.close()
     return redirect(url_for('gerenciar'))
@@ -336,7 +318,6 @@ def ativar(id):
 
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute('UPDATE inscritos SET ativo = 1 WHERE id = %s', (id,))
     cursor.execute('UPDATE inscritos SET ativo = 1 WHERE id = %s', (id,))
     conn.commit()
     conn.close()
