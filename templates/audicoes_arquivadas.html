@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audições Arquivadas</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #e5e5e5;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #b0b0b0;
+    padding: 10px 20px;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+}
+
+.left-buttons, .right-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.top-bar button {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.top-bar button:hover {
+    background-color: #5a6268;
+}
+
+.logo-title {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.logo-title img {
+    width: 80px;
+}
+
+.logo-title h1 {
+    margin: 5px 0 0 0;
+    font-size: 22px;
+    color: #333333;
+}
+
+.search-filter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.search-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#toggleSearchBtn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#toggleSearchBtn:hover {
+    background-color: #5a6268;
+}
+
+#searchBar {
+    margin-top: 5px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    display: none;
+    width: 200px;
+}
+
+.table-container {
+    overflow-x: auto;
+    margin: 20px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 1000px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+th {
+    background-color: #6c757d;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f7f7f7;
+}
+
+tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+tr:hover {
+    background-color: #dddddd;
+    cursor: pointer;
+}
+
+img {
+    border-radius: 8px;
+    padding: 2px;
+}
+
+button.icon-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+button.icon-btn i {
+    color: green;
+    font-size: 16px;
+}
+
+.dark-mode { background-color: #2a2a2a; color: white; }
+.dark-mode .top-bar { background-color: #2e413a; }
+.dark-mode th { background-color: #3a3a3a; }
+.dark-mode table { background-color: #1e1e1e; }
+.dark-mode td { border-color: #555; }
+.dark-mode tr:nth-child(even) { background-color: #2d2d2d; }
+.dark-mode tr:nth-child(odd) { background-color: #1e1e1e; }
+.dark-mode tr:hover { background-color: #444 !important; }
+.dark-mode .logo-peniel { filter: invert(1) brightness(1.2); }
+.dark-mode label,
+.dark-mode h1,
+.dark-mode h2 {
+    color: #bdbdbd !important;
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+    <div class="left-buttons">
+        <button onclick="window.location.href='/menu'"><i class="fas fa-home"></i> <span>Início</span></button>
+        <button onclick="window.location.href='/audicoes_gerencia'"><i class="fas fa-arrow-left"></i> <span>Voltar</span></button>
+    </div>
+    <div class="right-buttons">
+        <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+        <button onclick="if(confirm('Tem certeza que deseja sair?')){ window.location.href='/logout'; }">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+</div>
+
+<div class="logo-title">
+    <img src="{{ url_for('static', filename='peniel-removebg-preview.png') }}" class="logo-peniel">
+    <h1>🎧 Audições Arquivadas</h1>
+</div>
+
+<div class="search-filter">
+    <div class="search-container">
+        <button id="toggleSearchBtn" onclick="toggleSearch()"><i class="fas fa-search"></i></button>
+        <input id="searchBar" onkeyup="filterByName()" placeholder="Buscar por nome..." type="text"/>
+    </div>
+</div>
+
+<div class="table-container">
+    <table id="tabelaAudicoes">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>Música</th>
+                <th>Tom</th>
+                <th>Instrumento/Voz</th>
+                <th>Vídeo</th>
+                <th>Data</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in dados %}
+            <tr>
+                <td><strong>{{ item[1] }}</strong></td>
+                <td>{{ item[2] }}</td>
+                <td>{{ item[3] }}</td>
+                <td>{{ item[5] }}</td>
+                <td>
+                    {% if item[6] == 'VOZ' %}
+                        VOZ
+                    {% elif item[6] == 'INSTRUMENTO' %}
+                        {{ item[9] }}
+                    {% elif item[6] == 'AMBOS' %}
+                        VOZ + {{ item[9] }}
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ item[4] }}" target="_blank">
+                        <img src="https://img.youtube.com/vi/{{ item[4]|youtube_id }}/hqdefault.jpg" width="100">
+                    </a>
+                </td>
+                <td>{{ item[7] | strftime_brasil('%d/%m/%y - %H:%M:%S') }}</td>
+                <td>
+                    <button class="icon-btn"
+                        onclick="if(confirm('Deseja desarquivar esta inscrição?')) { window.location.href='/desarquivar_audicao/{{ item[0] }}'; }">
+                        <i class="fas fa-box-open"></i>
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function toggleSearch() {
+    const searchBar = document.getElementById('searchBar');
+    const btn = document.getElementById('toggleSearchBtn');
+    if (searchBar.style.display === 'none' || searchBar.style.display === '') {
+        searchBar.style.display = 'block';
+        btn.classList.add('search-active');
+    } else {
+        searchBar.style.display = 'none';
+        btn.classList.remove('search-active');
+    }
+}
+
+function filterByName() {
+    const input = document.getElementById('searchBar').value.toLowerCase();
+    const rows = document.querySelectorAll('#tabelaAudicoes tbody tr');
+    rows.forEach(row => {
+        const nome = row.querySelector('td').innerText.toLowerCase();
+        row.style.display = nome.includes(input) ? '' : 'none';
+    });
+}
+
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
+}
+
+window.onload = function() {
+    if (localStorage.getItem('modoEscuro') === 'ativado') {
+        document.body.classList.add('dark-mode');
+    }
+};
+</script>
+
+</body>
+</html>

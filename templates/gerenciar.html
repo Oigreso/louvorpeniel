@@ -219,13 +219,12 @@
 </style>
 <div class="top-bar">
   <div class="buttons">
-    <button onclick="location.href='/inscritos'"><i class="fas fa-arrow-left"></i> <span>Voltar</span></button>
-    <button class="active" onclick="location.href='/gerenciar'"><i class="fas fa-cogs"></i> <span>Painel</span></button>
-    <button onclick="location.href='/senhas'"><i class="fas fa-user-lock"></i> <span>Senhas</span></button>
+    <button onclick="location.href='/menu'"><i class="fas fa-home"></i> <span>Inicio</span></button>
+    
   </div>
   <div class="buttons-right">
     <button onclick="toggleDarkMode()" class="icon-btn"><i class="fas fa-moon"></i></button>
-    <button onclick="location.href='/logout'" class="icon-btn"><i class="fas fa-sign-out-alt"></i></button>
+    <button onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
 </div>
 
@@ -294,6 +293,12 @@ function toggleDarkMode() {
 window.onload = function () {
   if (localStorage.getItem('modoEscuro') === 'ativado') {
     document.body.classList.add('dark-mode');
+  }
+}
+
+function confirmLogout() {
+  if (confirm("Tem certeza que deseja sair?")) {
+    window.location.href = "/logout";
   }
 }
 </script>

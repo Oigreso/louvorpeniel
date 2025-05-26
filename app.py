@@ -1,30 +1,56 @@
 
 from flask import Flask, render_template, request, redirect, url_for, send_file, session, Response
-import sqlite3
+import psycopg2
 import csv
 import json
 import io
 import os
-from datetime import datetime
+import re
+from datetime import datetime, timedelta, timezone, timedelta   
 import openpyxl
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Alignment, Font
 import tempfile
 from datetime import datetime
 import hashlib
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, jsonify
 
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta_aqui'  # Importante para sessões
 
-VERSAO_ATUAL = "v1.2"
+VERSAO_ATUAL = "v1.3"
+
+CONFIG_FILE = 'config.json'
+
+def carregar_config():
+    config_padrao = {
+        "formulario_ativo": True,
+        "audicao_ativa": True
+    }
+
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, 'r') as file:
+            try:
+                config_arquivo = json.load(file)
+                # Atualizar config_padrao com o que tiver no arquivo
+                config_padrao.update(config_arquivo)
+            except json.JSONDecodeError:
+                # Arquivo corrompido, volta para padrão
+                pass
+
+    return config_padrao
+
+def salvar_config(config):
+    with open(CONFIG_FILE, 'w') as file:
+        json.dump(config, file, indent=4)
+
 
 @app.context_processor
 def inject_version():
     return dict(versao=VERSAO_ATUAL)
 
 def criptografar_senha(senha):
-    return hashlib.sha256(senha.encode()).hexdigest()
+    return hashlib.sha256(senha.encode('utf-8')).hexdigest()
 
 
 def admin_required(func):
@@ -44,10 +70,51 @@ def calcular_idade(data_nascimento):
         return idade
     return None
 
+@app.route('/menu')
+def menu():
+    if 'usuario' not in session:
+        return redirect('/login')
+    return render_template('menu.html')
+
+@app.route('/verificar_cadastro', methods=['POST'])
+def verificar_cadastro():
+    data = request.get_json()
+    nome = data.get('nome').strip().upper()
+    nascimento = data.get('nascimento').strip()
+
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM inscritos WHERE UPPER(nome) = %s AND nascimento = %s", (nome, nascimento))
+    resultado = cursor.fetchone()
+
+    if resultado:
+        keys = [desc[0] for desc in cursor.description]
+        dados = dict(zip(keys, resultado))
+        conn.close()
+        return jsonify({"existe": True, "dados": dados})
+    else:
+        conn.close()
+        return jsonify({"existe": False})
+
+
+    
+@app.route('/cadastro_existente')
+def cadastro_existente():
+    nome = request.args.get('nome', 'Usuário')  # Se não vier nome, mostra 'Usuário'
+    return render_template('cadastro_existente.html', nome=nome)
+
+
 
 def conectar():
-    caminho_db = os.path.join(os.path.dirname(__file__), 'banco.db')
-    return sqlite3.connect(caminho_db)
+    print("🎯 CONECTANDO NO BANCO -> banco_gc0v no HOST: dpg-d0ogdqemcj7s73d5icug-a.oregon-postgres.render.com")
+    return psycopg2.connect(
+        dbname="banco_gc0v",
+        user="banco_gc0v_user",
+        password="0yP4ybAuaGiG7XC5Fsq1cn3Tzjjx6s0m",
+        host="dpg-d0ogdqemcj7s73d5icug-a.oregon-postgres.render.com",
+        port="5432"
+    )
+
 
 # ===============================
 # Login e Controle de Sessão
@@ -55,29 +122,38 @@ def conectar():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    print("🚀 LOGIN acionado")
     erro = None
     if request.method == 'POST':
-        usuario = request.form['usuario']
-        senha = request.form['senha']
-        
+        usuario = request.form['usuario'].strip().lower()
+        senha = request.form['senha'].strip()
+
+        print(f"🧠 Usuario digitado: {usuario}")
+        print(f"🧠 Senha digitada (criptografada): {criptografar_senha(senha)}")
+
         conn = conectar()
         cursor = conn.cursor()
-        cursor.execute("SELECT senha, nivel FROM usuarios WHERE usuario = ?", (usuario,))
+        cursor.execute("SELECT senha, nivel FROM usuarios WHERE usuario = %s", (usuario,))
         resultado = cursor.fetchone()
         conn.close()
 
         if resultado:
             senha_correta, nivel = resultado
-            if criptografar_senha(senha.strip()) == senha_correta.strip():
+
+            print(f"🔑 Senha no banco: {senha_correta}")
+
+            if criptografar_senha(senha) == senha_correta.strip():
                 session['usuario'] = usuario
                 session['nivel'] = nivel
-                return redirect('/inscritos')
+                return redirect('/menu')
             else:
                 erro = "Senha incorreta!"
         else:
             erro = "Usuário não encontrado!"
 
     return render_template('login.html', erro=erro)
+
+
 
 @app.route('/logout')
 def logout():
@@ -90,6 +166,9 @@ def logout():
 
 @app.route('/', methods=['GET', 'POST'])
 def form():
+    config = carregar_config()
+    if not config.get('formulario_ativo', True):
+        return render_template('form.html', mostrar_modal=True)
     sucesso = False
     erro = False
     if request.method == 'POST':
@@ -105,28 +184,50 @@ def form():
 
             conn = conectar()
             cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO inscritos (
-                    nome, nascimento, telefone, email, endereco, numero, complemento,
-                    bairro, cidade, estado, profissao, estado_civil, batizado, perfil,
-                    voz, aulas, segunda_voz, instrumentos, outro_instrumento, cifras, ouvido,
-                    nivel_tecnico, ensaios, cultos, motivacao, experiencia
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                dados.get('nome'), dados.get('nascimento'), dados.get('telefone'), dados.get('email'),
-                dados.get('endereco'), dados.get('numero'), dados.get('complemento'), dados.get('bairro'),
-                dados.get('cidade'), dados.get('estado'), dados.get('profissao'), dados.get('estado_civil'),
-                dados.get('batizado'), dados.get('perfil'), dados.get('voz'), dados.get('aulas'),
-                dados.get('segunda_voz'), dados.get('instrumentos'), dados.get('outro_instrumento'),
-                dados.get('cifras'), dados.get('ouvido'), dados.get('nivel_tecnico'),
-                dados.get('ensaios'), dados.get('cultos'), dados.get('motivacao'), dados.get('experiencia')
-            ))
+
+            if dados.get('id'):  # Se existe ID, faz UPDATE (alteração)
+                cursor.execute('''
+                    UPDATE inscritos SET
+                        nome=%s, nascimento=%s, telefone=%s, email=%s, endereco=%s, numero=%s, complemento=%s,
+                        bairro=%s, cidade=%s, estado=%s, profissao=%s, estado_civil=%s, batizado=%s, perfil=%s,
+                        voz=%s, aulas=%s, segunda_voz=%s, instrumentos=%s, outro_instrumento=%s, cifras=%s, ouvido=%s,
+                        nivel_tecnico=%s, ensaios=%s, cultos=%s, motivacao=%s, experiencia=%s
+                    WHERE id=%s
+                ''', (
+                    dados.get('nome'), dados.get('nascimento'), dados.get('telefone'), dados.get('email'),
+                    dados.get('endereco'), dados.get('numero'), dados.get('complemento'), dados.get('bairro'),
+                    dados.get('cidade'), dados.get('estado'), dados.get('profissao'), dados.get('estado_civil'),
+                    dados.get('batizado'), dados.get('perfil'), dados.get('voz'), dados.get('aulas'),
+                    dados.get('segunda_voz'), dados.get('instrumentos'), dados.get('outro_instrumento'),
+                    dados.get('cifras'), dados.get('ouvido'), dados.get('nivel_tecnico'),
+                    dados.get('ensaios'), dados.get('cultos'), dados.get('motivacao'), dados.get('experiencia'),
+                    dados.get('id')  # ID vai na cláusula WHERE
+                ))
+            else:  # Se não existe ID, faz INSERT (novo cadastro)
+                cursor.execute('''
+                    INSERT INTO inscritos (
+                        nome, nascimento, telefone, email, endereco, numero, complemento,
+                        bairro, cidade, estado, profissao, estado_civil, batizado, perfil,
+                        voz, aulas, segunda_voz, instrumentos, outro_instrumento, cifras, ouvido,
+                        nivel_tecnico, ensaios, cultos, motivacao, experiencia
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ''', (
+                    dados.get('nome'), dados.get('nascimento'), dados.get('telefone'), dados.get('email'),
+                    dados.get('endereco'), dados.get('numero'), dados.get('complemento'), dados.get('bairro'),
+                    dados.get('cidade'), dados.get('estado'), dados.get('profissao'), dados.get('estado_civil'),
+                    dados.get('batizado'), dados.get('perfil'), dados.get('voz'), dados.get('aulas'),
+                    dados.get('segunda_voz'), dados.get('instrumentos'), dados.get('outro_instrumento'),
+                    dados.get('cifras'), dados.get('ouvido'), dados.get('nivel_tecnico'),
+                    dados.get('ensaios'), dados.get('cultos'), dados.get('motivacao'), dados.get('experiencia')
+                ))
+
             conn.commit()
             conn.close()
             return redirect('/sucesso')
         except Exception as e:
             print(e)
             erro = True
+
 
     return render_template('form.html', sucesso=sucesso, erro=erro)
 
@@ -149,21 +250,30 @@ def inscritos():
     for inscrito in inscritos:
         inscrito = list(inscrito)
 
-        # Primeiro: Calcular a idade ANTES de alterar o formato da data
-        idade = calcular_idade(inscrito[2])
-        inscrito.append(idade)  # adiciona idade no final
+        # Calcular idade de forma segura
+        try:
+            if inscrito[2] is not None:
+                idade = calcular_idade(str(inscrito[2]))
+            else:
+                idade = None
+        except Exception:
+            idade = None
+        inscrito.append(idade)
 
-        # Depois: Formatar a data de nascimento para DD/MM/AAAA
-        if inscrito[2]:
-            try:
-                data = datetime.strptime(inscrito[2], "%Y-%m-%d")
+        # Formatar data de nascimento de forma segura
+        try:
+            if inscrito[2] is not None:
+                data = datetime.strptime(str(inscrito[2]), "%Y-%m-%d")
                 inscrito[2] = data.strftime("%d/%m/%Y")
-            except:
-                pass
+            else:
+                inscrito[2] = "Data não informada"
+        except Exception:
+            inscrito[2] = "Data inválida"
 
         inscritos_formatados.append(inscrito)
 
     return render_template('inscritos.html', inscritos=inscritos_formatados)
+
 
 
 @app.route('/gerenciar')
@@ -193,7 +303,7 @@ def inativar(id):
 
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute('UPDATE inscritos SET ativo = 0 WHERE id = ?', (id,))
+    cursor.execute('UPDATE inscritos SET ativo = 0 WHERE id = %s', (id,))
     conn.commit()
     conn.close()
     return redirect(url_for('gerenciar'))
@@ -205,7 +315,7 @@ def ativar(id):
 
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute('UPDATE inscritos SET ativo = 1 WHERE id = ?', (id,))
+    cursor.execute('UPDATE inscritos SET ativo = 1 WHERE id = %s', (id,))
     conn.commit()
     conn.close()
     return redirect(url_for('gerenciar'))
@@ -217,7 +327,7 @@ def excluir(id):
 
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM inscritos WHERE id = ?', (id,))
+    cursor.execute('DELETE FROM inscritos WHERE id = %s', (id,))
     conn.commit()
     conn.close()
     return redirect(url_for('gerenciar'))
@@ -242,11 +352,11 @@ def editar(id):
 
         cursor.execute('''
             UPDATE inscritos SET
-                nome=?, nascimento=?, telefone=?, email=?, endereco=?, numero=?, complemento=?,
-                bairro=?, cidade=?, estado=?, profissao=?, estado_civil=?, batizado=?, perfil=?,
-                voz=?, aulas=?, segunda_voz=?, instrumentos=?, outro_instrumento=?, cifras=?, ouvido=?,
-                nivel_tecnico=?, ensaios=?, cultos=?, motivacao=?, experiencia=?
-            WHERE id=?
+                nome=%s, nascimento=%s, telefone=%s, email=%s, endereco=%s, numero=%s, complemento=%s,
+                bairro=%s, cidade=%s, estado=%s, profissao=%s, estado_civil=%s, batizado=%s, perfil=%s,
+                voz=%s, aulas=%s, segunda_voz=%s, instrumentos=%s, outro_instrumento=%s, cifras=%s, ouvido=%s,
+                nivel_tecnico=%s, ensaios=%s, cultos=%s, motivacao=%s, experiencia=%s
+            WHERE id=%s
         ''', (
             dados.get('nome'), dados.get('nascimento'), dados.get('telefone'), dados.get('email'),
             dados.get('endereco'), dados.get('numero'), dados.get('complemento'), dados.get('bairro'),
@@ -260,7 +370,7 @@ def editar(id):
         conn.close()
         return redirect(url_for('gerenciar'))
 
-    cursor.execute('SELECT * FROM inscritos WHERE id = ?', (id,))
+    cursor.execute('SELECT * FROM inscritos WHERE id = %s', (id,))
     inscrito = cursor.fetchone()
     conn.close()
     return render_template('editar.html', inscrito=inscrito)
@@ -272,7 +382,7 @@ def detalhes(id):
 
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM inscritos WHERE id = ?', (id,))
+    cursor.execute('SELECT * FROM inscritos WHERE id = %s', (id,))
     inscrito = cursor.fetchone()
     conn.close()
     return render_template('detalhes.html', inscrito=inscrito)
@@ -344,7 +454,7 @@ def exportar_xlsx():
             inscrito[7], inscrito[8], inscrito[9], inscrito[10], inscrito[11], inscrito[12],
             inscrito[13], inscrito[14], inscrito[15], inscrito[16], inscrito[17], inscrito[18],
             inscrito[19], inscrito[20], inscrito[21], inscrito[22], inscrito[23], inscrito[24],
-            inscrito[25], 'Ativo' if inscrito[26] == 1 else 'Inativo'
+            inscrito[25], 'Ativo' if inscrito[27] == 1 else 'Inativo'
         ]
         for col_num, dado in enumerate(dados, 1):
             ws.cell(row=row_num, column=col_num).value = dado
@@ -384,7 +494,7 @@ def novo_usuario():
 
         conn = conectar()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO usuarios (usuario, senha, nivel) VALUES (?, ?, ?)", (usuario, senha, nivel))
+        cursor.execute("INSERT INTO usuarios (usuario, senha, nivel) VALUES (%s, %s, %s)", (usuario, senha, nivel))
         conn.commit()
         conn.close()
         return redirect(url_for('senhas'))
@@ -395,7 +505,7 @@ def novo_usuario():
 def excluir_usuario(id):
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM usuarios WHERE id = ?", (id,))
+    cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
     conn.commit()
     conn.close()
     return redirect(url_for('senhas'))
@@ -424,14 +534,14 @@ def editar_usuario(id):
 
             if senha:
                 senha = criptografar_senha(senha)
-                cursor.execute("UPDATE usuarios SET usuario = ?, senha = ?, nivel = ? WHERE id = ?", (usuario, senha, nivel, id))
+                cursor.execute("UPDATE usuarios SET usuario = %s, senha = %s, nivel = %s WHERE id = %s", (usuario, senha, nivel, id))
             else:
-                cursor.execute("UPDATE usuarios SET usuario = ?, nivel = ? WHERE id = ?", (usuario, nivel, id))
+                cursor.execute("UPDATE usuarios SET usuario = %s, nivel = %s WHERE id = %s", (usuario, nivel, id))
 
             conn.commit()
             return redirect(url_for('senhas'))
 
-        cursor.execute("SELECT * FROM usuarios WHERE id = ?", (id,))
+        cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
         usuario = cursor.fetchone()
         if not usuario:
             flash('Usuário não encontrado!', 'error')
@@ -447,7 +557,182 @@ def editar_usuario(id):
         conn.close()
 
 
+@app.route('/form')
+def redirecionar_para_form():
+    return redirect('/')
+
+
+@app.route('/configuracoes', methods=['GET', 'POST'])
+def configuracoes_page():
+    if 'usuario' not in session:
+        return redirect('/login')
+
+    config = carregar_config()
+
+    if request.method == 'POST':
+        config['formulario_ativo'] = 'formulario_ativo' in request.form
+        config['audicao_ativa'] = 'audicao_ativa' in request.form
+        salvar_config(config)  
+
+    return render_template(
+        'configuracoes.html',
+        formulario_ativo=config['formulario_ativo'],
+        audicao_ativa=config['audicao_ativa']
+    )
+
+@app.route('/audicoes', methods=['GET', 'POST'])
+def audicoes():
+    config = carregar_config()
+    if not config.get('audicao_ativa', True):
+        return render_template('audicoes.html', mostrar_modal=True)
+
+    if request.method == 'POST':
+        nome = request.form['nome'].strip().upper()
+        telefone = request.form['telefone'].strip()
+        musica = request.form['musica'].strip().title()
+        link_youtube = request.form['link_youtube'].strip()
+        tom = request.form['tom']
+        if tom == 'Outro':
+            tom = request.form.get('outro_tom').strip().upper()
+
+        tipo = request.form['instrumento_voz']
+        detalhe = ''
+
+        if tipo == 'INSTRUMENTO' or tipo == 'AMBOS':
+            instrumento = request.form.get('instrumento_escolhido')
+            if instrumento == 'Outro':
+                detalhe = request.form.get('outro_instrumento').strip().title()
+            else:
+                detalhe = instrumento
+        else:
+            detalhe = None
+
+        conn = conectar()
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            INSERT INTO audicoes (nome, telefone, musica, link_youtube, tom, instrumento_voz, detalhe_instrumento, data_envio)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, now())
+        ''', (nome, telefone, musica, link_youtube, tom, tipo, detalhe))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return render_template('sucesso.html')
+
+    return render_template('audicoes.html')
+
+
+
+@app.route('/audicoes_gerencia')
+def audicoes_gerencia():
+    if 'usuario' not in session:
+        return redirect('/login')
+
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT * FROM audicoes
+        WHERE arquivado = FALSE
+        ORDER BY data_envio DESC
+    ''')
+    dados = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('audicoes_gerencia.html', dados=dados)
+
+
+
+@app.template_filter('youtube_id')
+def youtube_id(link):
+    regex = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
+    match = re.search(regex, link)
+    return match.group(1) if match else ''
+
+@app.template_filter('strftime_brasil')
+def _jinja2_filter_datetime_brasil(value, fmt=None):
+    if not value:
+        return ""
+    try:
+        if isinstance(value, str):
+            try:
+                value = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                return value
+        value = value - timedelta(hours=3)
+        return value.strftime(fmt or "%d/%m/%y - %H:%M:%S")
+    except Exception:
+        return str(value)
+    
+@app.route('/excluir_audicao/<int:id>')
+def excluir_audicao(id):
+    if 'usuario' not in session:
+        return redirect('/login')
+
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM audicoes WHERE id = %s', (id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('audicoes_gerencia'))
+
+@app.route('/arquivar_audicao/<int:id>')
+def arquivar_audicao(id):
+    if 'usuario' not in session:
+        return redirect('/login')
+
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE audicoes SET arquivado = TRUE WHERE id = %s
+    ''', (id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('audicoes_gerencia'))
+
+@app.route('/audicoes_arquivadas')
+def audicoes_arquivadas():
+    if 'usuario' not in session:
+        return redirect('/login')
+
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT * FROM audicoes
+        WHERE arquivado = TRUE
+        ORDER BY data_envio DESC
+    ''')
+    dados = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('audicoes_arquivadas.html', dados=dados)
+
+@app.route('/desarquivar_audicao/<int:id>')
+def desarquivar_audicao(id):
+    if 'usuario' not in session:
+        return redirect('/login')
+
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE audicoes SET arquivado = FALSE WHERE id = %s
+    ''', (id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('audicoes_arquivadas'))
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-    #*app.run(debug=True)
+    #app.run(debug=True)

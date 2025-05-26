@@ -243,13 +243,13 @@
 </style>
 <div class="top-bar">
 <div class="buttons">
-<button onclick="location.href='/'"><i class="fas fa-plus"></i> <span>Novo</span></button>
+<button onclick="location.href='/menu'"><i class="fas fa-home"></i> <span>Inicio</span></button>
 <button onclick="location.href='/exportar_csv'"><i class="fas fa-file-excel"></i> <span>Exportar Planilha</span></button>
-<button onclick="location.href='/gerenciar'"><i class="fas fa-tools"></i> <span>Gerenciar</span></button>
+
 </div>
 <div class="buttons">
 <button class="icon-btn" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
-<button class="icon-btn" onclick="location.href='/logout'"><i class="fas fa-sign-out-alt"></i></button>
+<button onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
 </div>
 </div>
 <div class="buttons">
@@ -341,7 +341,7 @@
 <td>{{ inscrito[23] }}</td>
 <td>{{ inscrito[2] }}</td>
 <td>{{ inscrito[12] }}</td>
-<td>{% if inscrito[26] == 1 %}Ativo{% else %}Inativo{% endif %}</td>
+<td>{% if inscrito[27] == 1 %}Ativo{% else %}Inativo{% endif %}</td>
 </tr>
     {% endfor %}
     </tbody>
@@ -466,6 +466,12 @@ window.onload = function () {
     if (localStorage.getItem('modoEscuro') === 'ativado') {
         document.body.classList.add('dark-mode');
     }
+}
+
+function confirmLogout() {
+  if (confirm("Tem certeza que deseja sair?")) {
+    window.location.href = "/logout";
+  }
 }
 </script>
 <script>

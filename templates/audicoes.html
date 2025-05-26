@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscrição para Audições</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+/* Top Bar */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Top Bar */
+.top-bar {
+    background-color: #d4edda;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.left-buttons, .right-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.top-bar button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.top-bar button:hover {
+    background-color: #218838;
+}
+
+/* Container com padding fixo */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 30px 40px;
+    box-sizing: border-box;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 500px) {
+    .container {
+        padding: 15px;
+    }
+}
+
+/* Logo e Título */
+.logo-title {
+    text-align: center;
+}
+
+.logo-title img {
+    width: 100px;
+}
+
+.logo-title h1 {
+    margin: 5px 0 0 0;
+    color: #2d6a4f;
+}
+
+/* Card */
+.card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 25px;
+    margin-top: 20px;
+    box-sizing: border-box;
+}
+
+/* Títulos no card */
+.card h2 {
+    color: #333;
+}
+
+/* Labels e Inputs */
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="text"], 
+input[type="url"], 
+input[type="tel"], 
+textarea, 
+select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+input:focus, 
+textarea:focus, 
+select:focus {
+    background-color: #f2fbf2;
+    outline: none;
+}
+
+/* Thumbnail centralizada */
+#thumbnail {
+    text-align: center;
+    margin-top: 15px;
+}
+
+#thumbnail img {
+    border-radius: 8px;
+}
+
+/* Botão de envio */
+.submit-btn {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.submit-btn button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.submit-btn button:hover {
+    background-color: #45a049;
+}
+
+/* Modo escuro */
+/* Modo escuro */
+        .dark-mode { background-color: #2a2a2a; color: white; }
+        .dark-mode .card { background: #1e1e1e; color: white; box-shadow: 0 0 10px rgba(255,255,255,0.1); }
+        .dark-mode .top-bar { background-color: #2e413a; }
+
+                /* Modo escuro para tabela */
+        .dark-mode table {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .dark-mode th {
+            background-color: #3a3a3a;
+            color: #ffffff;
+        }
+
+        .dark-mode td {
+            border-color: #555;
+        }
+
+        .dark-mode tr:nth-child(even) {
+            background-color: #2d2d2d;
+        }
+
+        .dark-mode tr:nth-child(odd) {
+            background-color: #1e1e1e;
+        }
+
+        .dark-mode tr:hover {
+            background-color: #444 !important;
+        }
+
+        .dark-mode input[type="text"],
+        .dark-mode input[type="email"],
+        .dark-mode input[type="date"],
+        .dark-mode input[type="url"],
+        .dark-mode textarea,
+        .dark-mode input[type="password"],
+        .dark-mode select {
+         background-color: #2d2d2d;
+          color: #bebebe;
+          border: 1px solid #555;
+        }
+        .dark-mode label,
+        .dark-mode h3,
+        .dark-mode h4,
+        .dark-mode h2,
+        .dark-mode h1,
+        .dark-mode p {
+            color: #bdbdbd !important;
+        }
+
+        .dark-mode input::placeholder,
+        .dark-mode textarea::placeholder {
+          color: #aaa;
+        }
+        .dark-mode .login-container {
+          background-color: #1e1e1e;
+          box-shadow: 0 0 10px rgba(255,255,255,0.1);
+        }
+        .dark-mode .logo-peniel {
+          filter: invert(1) brightness(1.2);
+        }
+        .dark-mode input[type="text"]:focus,
+        .dark-mode input[type="email"]:focus,
+        .dark-mode input[type="date"]:focus,
+        .dark-mode input[type="url"]:focus,
+        .dark-mode textarea:focus,
+        .dark-mode select:focus {
+        background-color: #686868;
+        outline: none;
+        }
+        .dark-mode footer.footer {
+          background-color: #1f2f28;
+          border-top: 1px solid #444;
+          color: #bdbdbd;
+        }
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+    background-color: white;
+    margin: auto;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+}
+
+.modal-content h2 {
+    color: #2d6a4f;
+    margin-top: 0;
+    text-align: center;
+}
+
+.modal-content p {
+    margin-bottom: 20px;
+}
+
+.modal-content ul {
+    text-align: left;
+    padding-left: 20px;
+    display: inline-block;
+}
+
+.modal-content li {
+    margin-bottom: 10px;
+}
+
+.modal-content button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.modal-content button:hover {
+    background-color: #218838;
+}
+
+/* Modo escuro */
+.dark-mode .modal-content {
+    background-color: #1e1e1e;
+    color: white;
+    border: 1px solid #333;
+}
+
+/* Mostrar no desktop e tablet */
+.show-desktop {
+    display: inline-block;
+}
+
+/* Esconder no celular */
+@media (max-width: 600px) {
+    .show-desktop {
+        display: none;
+    }
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+  <div class="left-buttons">
+    <button onclick="window.location.href='/menu'"><i class="fas fa-cogs"></i></button>
+  </div>
+  <div class="right-buttons">
+    <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+    
+    </button>
+  </div>
+</div>
+
+<div id="modal-fechado" class="modal">
+  <div class="modal-content">
+    <div style="font-size: 50px; margin-bottom: 10px;">⚠️</div>
+    <h2>INSCRIÇÕES PARA AUDIÇÕES FECHADAS</h2>
+    <p>O período de inscrições para audições está fechado no momento.</p>
+    <h5>Avisaremos nova data para inscrições nos Avisos Finais dos Cultos.<p>Fique Atento!</p></h5>
+    <button onclick="history.back()">Voltar</button>
+  </div>
+</div>
+
+<div id="infoModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="fecharModal()">&times;</span>
+    <h2>🎧 Atenção!</h2>
+    <p>Gostaríamos de passar algumas informações antes de você preencher sua <strong>INSCRIÇÃO</strong>.</p>
+    <ul>
+      <li>🎶 Escolha uma música bem conhecida e dê preferência para músicas já tocadas na <strong>Peniel Guilhermina</strong>.</li>
+      <li>🎧 Nós trabalhamos com <strong>Multitracks</strong> e <strong>Metrônomo</strong>. Traga seus <strong>fones</strong> com conexão P2 no dia da audição.</li>
+    </ul>
+    <div style="text-align: center; margin-top: 15px;">
+      <button onclick="fecharModal()" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+        Entendido
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="logo-title">
+    <img src="{{ url_for('static', filename='peniel-removebg-preview.png') }}">
+    <h1>🎶 Inscrição para Audições</h1>
+  </div>
+
+  <div class="card">
+    <form method="POST">
+      <label>Nome:</label>
+      <input type="text" name="nome" required>
+
+      <label>Telefone (WhatsApp):</label>
+      <input type="text" name="telefone" id="telefone" required>
+
+      <label>Nome da Música para Audição:</label>
+      <input type="text" name="musica" required>
+
+      <label>Link do YouTube:</label>
+      <div style="display: flex; gap: 10px; align-items: center;">
+          <input type="url" name="link_youtube" id="link_youtube" required oninput="atualizarThumbnail()" style="flex: 1;">
+          
+          <button type="button" class="show-desktop" onclick="colarLink()" 
+            style="padding: 8px 12px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+              <i class="fas fa-paste"></i>
+          </button>
+      </div>
+
+
+      <div id="thumbnail"></div>
+
+      <label>Tom da Música:</label>
+      <select name="tom" id="tom" onchange="mostrarCampoOutroTom()" required>
+        <option value="">Selecione</option>
+        <option value="Original do vídeo">Original do vídeo</option>
+        <option value="Outro">Outro</option>
+      </select>
+
+      <div id="outroTomDiv" style="display: none;">
+        <input type="text" id="outroTom" name="outro_tom" placeholder="Digite o Tom">
+      </div>
+
+
+      <label>Qual o Instrumento/Voz?</label>
+      <select name="instrumento_voz" id="instrumento_voz" required onchange="mostrarOpcoesInstrumento()">
+        <option value="">Selecione</option>
+        <option value="VOZ">Voz</option>
+        <option value="INSTRUMENTO">Instrumento</option>
+        <option value="AMBOS">Ambos</option>
+      </select>
+
+      <div id="opcoesInstrumento" style="display: none;">
+        <label>Escolha o Instrumento:</label>
+        <select id="instrumento_escolhido" name="instrumento_escolhido">
+          <option value="">Selecione</option>
+          <option value="Violão">Violão</option>
+          <option value="Guitarra">Guitarra</option>
+          <option value="Baixo">Baixo</option>
+          <option value="Teclado">Teclado</option>
+          <option value="Bateria">Bateria</option>
+          <option value="Outro">Outro</option>
+        </select>
+
+        <div id="outroInstrumentoDiv" style="display:none;">
+          <input type="text" id="outroInstrumento" name="outro_instrumento" placeholder="Digite o Instrumento">
+        </div>
+      </div>
+
+      <div class="submit-btn">
+        <button type="submit"><i class="fas fa-paper-plane"></i> Enviar Inscrição</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+$('#telefone').mask('(00) 0 0000-0000');
+
+function extrairVideoID(url) {
+    const regex = /(?:v=|\/)([0-9A-Za-z_-]{11}).*/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+}
+
+function atualizarThumbnail() {
+    const url = document.getElementById('link_youtube').value;
+    const videoID = extrairVideoID(url);
+    const thumbDiv = document.getElementById('thumbnail');
+
+    if (videoID) {
+        thumbDiv.innerHTML = `<img src="https://img.youtube.com/vi/${videoID}/hqdefault.jpg" width="300">`;
+    } else {
+        thumbDiv.innerHTML = '';
+    }
+}
+
+function mostrarOpcoesInstrumento() {
+    const tipo = document.getElementById('instrumento_voz').value;
+    const opcoes = document.getElementById('opcoesInstrumento');
+
+    if (tipo === "INSTRUMENTO" || tipo === "AMBOS") {
+        opcoes.style.display = "block";
+    } else {
+        opcoes.style.display = "none";
+    }
+}
+
+document.getElementById('instrumento_escolhido').addEventListener('change', function() {
+    const outroDiv = document.getElementById('outroInstrumentoDiv');
+    outroDiv.style.display = this.value === 'Outro' ? 'block' : 'none';
+});
+
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
+}
+
+window.onload = function() {
+    if (localStorage.getItem('modoEscuro') === 'ativado') {
+        document.body.classList.add('dark-mode');
+    }
+};
+
+function mostrarCampoOutroTom() {
+    const tom = document.getElementById('tom').value;
+    const outroDiv = document.getElementById('outroTomDiv');
+    if (tom === 'Outro') {
+        outroDiv.style.display = 'block';
+    } else {
+        outroDiv.style.display = 'none';
+    }
+}
+
+window.onload = function() {
+    const modal = document.getElementById("infoModal");
+    modal.style.display = "block";
+
+    if (localStorage.getItem('modoEscuro') === 'ativado') {
+        document.body.classList.add('dark-mode');
+    }
+};
+
+function fecharModal() {
+    document.getElementById("infoModal").style.display = "none";
+}
+
+function colarLink() {
+    navigator.clipboard.readText()
+        .then(text => {
+            document.getElementById('link_youtube').value = text;
+            atualizarThumbnail(); // Atualiza a thumbnail automaticamente
+        })
+        .catch(err => {
+            alert('Erro ao acessar a área de transferência');
+            console.error('Erro ao colar: ', err);
+        });
+}
+
+window.onload = function () {
+    {% if mostrar_modal %}
+    document.getElementById("modal-fechado").style.display = "flex";
+    {% endif %}
+
+    if (localStorage.getItem('modoEscuro') === 'ativado') {
+        document.body.classList.add('dark-mode');
+    }
+};
+
+</script>
+
+</body>
+</html>

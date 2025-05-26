@@ -23,9 +23,18 @@
   .dark-mode footer.footer .versao {
     color: #aaa;
   }
+
+   .footer img {
+    height: 70px;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
 </style>
 
 <footer class="footer">
-  <div><strong>SARVOX TECNOLOGIA</strong></div>
+  <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+    <img src="{{ url_for('static', filename='sarvox_logo_0_1.png') }}" alt="Logo Sarvox">
+    
+  </div>
   <div class="versao">Versão {{ versao }}</div>
 </footer>

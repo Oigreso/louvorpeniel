@@ -213,19 +213,43 @@
 .top-bar button:hover {
   background-color: #218838;
 }
-footer.footer {
-  background-color: #e6f0eb;
-  padding: 20px 10px;
-  text-align: center;
-  font-size: 14px;
-  border-top: 1px solid #ccc;
-  color: #2d6a4f;
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
 }
 
-footer.footer .versao {
-  font-size: 12px;
-  color: #555;
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 0 10px black;
 }
+
+.dark-mode .modal-content {
+  background-color: #1e1e1e;
+  color: white;
+}
+
+.modal-content button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
 </style>
 
 <!-- Máscara e Scripts -->
@@ -281,6 +305,16 @@ function toggleDarkMode() {
 </script>
 </head>
 <body>
+<div id="modal-fechado" class="modal">
+  <div class="modal-content">
+    <div style="font-size: 50px; margin-bottom: 10px;">⚠️</div>
+    <h2>INSCRIÇOES FECHADAS</h2>
+    <p>O período de inscrições está fechado no momento.</p>
+    <h6>Procure o lider do ministerio para mais informações.</h6>
+    <button onclick="history.back()">Voltar</button>
+  </div>
+</div>
+
 <div class="top-bar">
   <div class="buttons">
     <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
@@ -295,14 +329,14 @@ function toggleDarkMode() {
 </div>
 
 <form method="POST">
-
+<input type="hidden" name="id" id="id">
 <div class="card">
   <h2>👤 Dados Pessoais</h2>
   <label>Nome Completo:</label>
-  <input type="text" name="nome" required>
+  <input type="text" name="nome" id="nome" required>
 
   <label>Data de Nascimento:</label>
-  <input type="date" name="nascimento" required>
+  <input type="date" name="nascimento" id="nascimento" required>
 
   <label>Telefone (WhatsApp):</label>
   <input type="text" id="telefone" name="telefone" inputmode="numeric" required>
@@ -467,14 +501,14 @@ function toggleDarkMode() {
 <div class="card">
   <h2>📝 Motivação e Experiência</h2>
   <label>Por que deseja participar do Ministério de Louvor?</label>
-  <textarea name="motivacao" rows="3" placeholder="*Se você já faz parte do Ministério de Louvor da Guilhermina nao precisa preencher esse campo."></textarea>
+  <textarea name="motivacao" rows="5" placeholder="Se você já faz parte do Ministério de Louvor da Peniel Guilhermina NÃO É NECESSARIO O PREENCHIMENTO DESSE CAMPO."></textarea>
 
   <label>Tem experiência com MULTITRACK e CLICK?</label>
   <textarea name="experiencia" rows="8" placeholder="Nos conte também sobre como e quando você começou na area da música, se ja participou em outros Ministerios ou Bandas."></textarea>
 </div>
 
 <div class="submit-btn">
-  <button type="submit">Enviar Cadastro</button>
+  <button type="submit" id="botao_enviar">Enviar Cadastro</button>
 </div>
 
 </form>
@@ -491,6 +525,72 @@ window.onload = function () {
         document.body.classList.add('dark-mode');
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const nomeInput = document.getElementById('nome');
+    const nascimentoInput = document.getElementById('nascimento');
+
+    function verificarCadastro() {
+        const nome = nomeInput.value.trim();
+        const nascimento = nascimentoInput.value.trim();
+
+        if (nome && nascimento) {
+            fetch('/verificar_cadastro', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({nome: nome, nascimento: nascimento})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.existe) {
+                    document.getElementById('id').value = data.dados.id;
+                    const confirmar = confirm(`Olá ${data.dados.nome}, seu cadastro foi encontrado em nossa base. Deseja fazer alterações?`);
+                    if (confirmar) {
+                        for (const campo in data.dados) {
+                            const elemento = document.getElementsByName(campo)[0];
+                            if (elemento) {
+                              const tipo = elemento.tagName.toLowerCase();
+
+                              if (tipo === "select") {
+                                  if (campo === "estado") {
+                                      const valorBanco = (data.dados[campo] || "").toUpperCase();
+                                      const opcoes = Array.from(elemento.options);
+                                      const opcaoCorreta = opcoes.find(o => o.value.toUpperCase() === valorBanco);
+                                      if (opcaoCorreta) {
+                                          elemento.value = opcaoCorreta.value;
+                                      } else {
+                                          elemento.value = data.dados[campo];
+                                      }
+                                  } else {
+                                      elemento.value = data.dados[campo];
+                                  }
+                              } else if (tipo === "input" || tipo === "textarea") {
+                                  elemento.value = data.dados[campo];
+                              }
+
+
+                            }
+                        }
+                        const botao = document.getElementById('botao_enviar');
+                        if (botao) {
+                            botao.textContent = 'ATUALIZAR CADASTRO';
+                        }
+                    } else {
+                        window.location.href = `/cadastro_existente?nome=${encodeURIComponent(data.dados.nome)}`;
+                    }
+                }
+            });
+        }
+    }
+
+    nomeInput.addEventListener('blur', verificarCadastro);
+    nascimentoInput.addEventListener('blur', verificarCadastro);
+});
+ window.onload = function () {
+    {% if mostrar_modal %}
+    document.getElementById("modal-fechado").style.display = "flex";
+    {% endif %}
+  }
 </script>
 
 {% include 'footer.html' %}
