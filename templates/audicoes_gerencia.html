@@ -178,7 +178,65 @@ button.icon-btn i {
     color: #bdbdbd !important;
 }
 
+@media (min-width: 768px) {
+  .whatsapp-link {
+    position: relative;
+  }
 
+/* 🔥 Tooltip apenas na versão desktop */
+        @media (min-width: 768px) {
+          .whatsapp-link {
+            position: relative;
+          }
+
+          .whatsapp-link::after {
+            content: "Clique para enviar mensagem no WhatsApp";
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 5px;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            font-size: 12px;
+            z-index: 1000;
+          }
+
+          .whatsapp-link:hover::after {
+            opacity: 1;
+          }
+        }
+
+.telefone-celula {
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+.telefone-celula a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    text-decoration: none;
+    color: #1fae54;
+    font-weight: bold;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.telefone-celula a:hover {
+    background-color: rgba(37, 211, 101, 0.183);
+    border-radius: 10px;
+}
+}
 </style>
 </head>
 
@@ -229,7 +287,14 @@ button.icon-btn i {
             {% for item in dados %}
             <tr>
                 <td><strong>{{ item[1] }}</strong></td>
-                <td>{{ item[2] }}</td>
+                <td class="telefone-celula">
+                <a href="https://wa.me/55{{ item[2]|replace('(', '')|replace(')', '')|replace('-', '')|replace(' ', '') }}" 
+                    target="_blank" 
+                    class="whatsapp-link">
+                    <i class="fab fa-whatsapp"></i> {{ item[2] }}
+                </a>
+                </td>
+
                 <td>{{ item[3] }}</td>
                 <td>{{ item[5] }}</td>
                 <td>

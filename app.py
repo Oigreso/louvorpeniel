@@ -703,7 +703,7 @@ def configuracoes_page():
     if 'usuario' not in session:
         return redirect('/login')
 
-    if session.get('nivel') != 'Admin':
+    if session.get('nivel') != 'admin':
         return redirect(url_for('menu', acesso_negado='1'))
 
     config = carregar_config()
