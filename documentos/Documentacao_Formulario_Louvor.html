@@ -1,0 +1,147 @@
+<h1>📄 Documentação Técnica - Formulário de Louvor Peniel</h1>
+
+<h2>📌 Visão Geral</h2>
+
+<p>Este projeto é um sistema de cadastro online para músicos que desejam participar do Ministério de Louvor da Igreja Peniel. Desenvolvido em <strong>Python com Flask</strong>, permite gerenciar cadastros, audições, usuários e configurações de forma simples e eficiente.</p>
+
+<hr />
+
+<h2>🚀 Tecnologias Utilizadas</h2>
+
+<ul>
+<li>🐍 Python 3.x</li>
+<li>🔥 Flask</li>
+<li>🗄️ SQLite ou PostgreSQL</li>
+<li>🌐 HTML, CSS, JavaScript</li>
+<li>☁️ Render.com</li>
+</ul>
+
+<hr />
+
+<h2>🧠 Funcionalidades Principais</h2>
+
+<ul>
+<li>✅ Cadastro de músicos para o Ministério de Louvor</li>
+<li>✅ Gerenciamento de inscrições e audições</li>
+<li>✅ Criação e edição de usuários administradores</li>
+<li>✅ Controle de acessos e permissões</li>
+<li>✅ Página de configurações para abrir ou fechar inscrições</li>
+<li>✅ Sistema responsivo e com modo escuro</li>
+</ul>
+
+<hr />
+
+<h2>🔧 Requisitos</h2>
+
+<ul>
+<li>✔️ Python 3.9 ou superior</li>
+<li>✔️ Pip</li>
+<li>✔️ Git (opcional)</li>
+<li>✔️ Banco de dados:
+<ul>
+<li>🗄️ SQLite (local)</li>
+<li>🗄️ PostgreSQL (produção)</li>
+</ul></li>
+</ul>
+
+<hr />
+
+<h2>📥 Instalação Local</h2>
+
+<p><code>bash
+git clone &lt;seu-repositorio&gt;
+cd FORMULARIO_LOUVOR
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate    # Windows
+pip install -r requirements.txt
+</code>
+Configure o arquivo <code>config.json</code> com as credenciais locais.</p>
+
+<hr />
+
+<h2>▶️ Como Executar</h2>
+
+<p><code>bash
+python app.py
+</code>
+O sistema estará disponível em: <strong>http://127.0.0.1:5000</strong></p>
+
+<hr />
+
+<h2>📂 Estrutura de Pastas</h2>
+
+<p><code>
+/FORMULARIO_LOUVOR
+├── app.py
+├── config.json
+├── requirements.txt
+├── Procfile
+├── /static
+│   ├── style.css
+│   ├── peniel.png
+│   └── sarvox_logo.png
+├── /templates
+│   ├── login.html
+│   ├── form.html
+│   ├── menu.html
+│   ├── gerenciar.html
+│   ├── audicoes.html
+│   ├── audicoes_gerencia.html
+│   ├── audicoes_arquivadas.html
+│   ├── detalhes.html
+│   ├── editar.html
+│   ├── novo_usuario.html
+│   ├── editar_usuario.html
+│   ├── configuracoes.html
+│   ├── senhas.html
+│   ├── acesso_negado.html
+│   └── sucesso.html
+</code></p>
+
+<hr />
+
+<h2>🌐 Principais Rotas Flask</h2>
+
+<p>| Rota                      | Função                                         |
+|---------------------------|-------------------------------------------------|
+| <code>/</code>                       | Página de login                                |
+| <code>/menu</code>                   | Menu principal                                 |
+| <code>/form</code>                   | Formulário de inscrição                        |
+| <code>/editar</code>                 | Editar inscrição                               |
+| <code>/inscritos</code>              | Lista de inscritos                             |
+| <code>/detalhes/&lt;id&gt;</code>          | Ver detalhes de um inscrito                    |
+| <code>/gerenciar</code>              | Gerenciar cadastros                            |
+| <code>/audicoes</code>               | Página pública de inscrições                   |
+| <code>/audicoes_gerencia</code>      | Gestão de audições                             |
+| <code>/audicoes_arquivadas</code>    | Histórico de audições                          |
+| <code>/configuracoes</code>          | Configurações do sistema                       |
+| <code>/novo_usuario</code>           | Cadastrar novo usuário                         |
+| <code>/editar_usuario/&lt;id&gt;</code>    | Editar usuários                                |
+| <code>/senhas</code>                 | Gerenciar senhas                               |
+| <code>/logout</code>                 | Encerrar sessão                                |</p>
+
+<hr />
+
+<h2>☁️ Deploy no Render.com</h2>
+
+<ol>
+<li>Crie um novo serviço <strong>Web Service</strong>.</li>
+<li>Conecte ao seu repositório GitHub.</li>
+<li>No campo <strong>Start Command</strong>, utilize:
+<code>bash
+gunicorn app:app
+</code></li>
+<li>Configure variáveis de ambiente conforme seu <code>config.json</code>.</li>
+<li>Configure banco PostgreSQL via Render.</li>
+</ol>
+
+<hr />
+
+<h2>⚖️ Licença</h2>
+
+<p>Projeto de uso interno da <strong>Igreja Peniel Guilhermina</strong>, permitido uso para fins não comerciais.</p>
+
+<hr />
+
+<p><img src="static/peniel-removebg-preview.png" alt="Logo Peniel" /> <img src="static/sarvox_logo_0_1.png" alt="Logo Sarvox" /></p>

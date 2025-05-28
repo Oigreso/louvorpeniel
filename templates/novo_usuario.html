@@ -152,6 +152,11 @@
   <div class="container">
     <div class="card">
       <h2>🆕 Cadastro de Novo Usuário</h2>
+      {% if mensagem %}
+        <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+          {{ mensagem }}
+        </div>
+      {% endif %}
       <form method="POST">
         <label for="usuario">👤 Usuário</label>
         <input type="text" id="usuario" name="usuario" required>

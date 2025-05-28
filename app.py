@@ -1,5 +1,6 @@
 
-from flask import Flask, render_template, request, redirect, url_for, send_file, session, Response
+from flask import Flask, render_template, request, redirect, url_for, send_file, session, Response, jsonify
+from dotenv import load_dotenv
 import psycopg2
 import csv
 import json
@@ -13,10 +14,21 @@ from openpyxl.styles import Alignment, Font
 import tempfile
 from datetime import datetime
 import hashlib
-from flask import render_template, request, redirect, url_for, flash, jsonify
 
+# 🔄 Carregar variáveis do .env
+load_dotenv()
+print(os.getenv('DATABASE_URL'))
+
+# 🔥 Instanciação da aplicação
 app = Flask(__name__)
-app.secret_key = 'sua_chave_secreta_aqui'  # Importante para sessões
+
+# 🔑 Definição da chave secreta (agora segura)
+app.secret_key = os.getenv('SECRET_KEY')
+
+
+# 🔗 Conexão com o banco de dados (segura)
+def conectar():
+    return psycopg2.connect(os.getenv('DATABASE_URL'))
 
 VERSAO_ATUAL = "v1.3"
 
@@ -70,12 +82,22 @@ def calcular_idade(data_nascimento):
         return idade
     return None
 
+
+# ===========================================
+# 🔐 Menu Principal após Login
+# ===========================================
 @app.route('/menu')
 def menu():
     if 'usuario' not in session:
         return redirect('/login')
-    return render_template('menu.html')
 
+    acesso_negado = request.args.get('acesso_negado') == '1'
+    return render_template('menu.html', acesso_negado=acesso_negado)
+
+
+# ===========================================
+# 🔍 Verifica se o cadastro já existe (usado no formulário)
+# ===========================================
 @app.route('/verificar_cadastro', methods=['POST'])
 def verificar_cadastro():
     data = request.get_json()
@@ -98,28 +120,23 @@ def verificar_cadastro():
 
 
     
+
+# ===========================================
+# ⚠️ Página que informa que o cadastro já existe
+# ===========================================
 @app.route('/cadastro_existente')
 def cadastro_existente():
     nome = request.args.get('nome', 'Usuário')  # Se não vier nome, mostra 'Usuário'
     return render_template('cadastro_existente.html', nome=nome)
 
-
-
-def conectar():
-    print("🎯 CONECTANDO NO BANCO -> banco_gc0v no HOST: dpg-d0ogdqemcj7s73d5icug-a.oregon-postgres.render.com")
-    return psycopg2.connect(
-        dbname="banco_gc0v",
-        user="banco_gc0v_user",
-        password="0yP4ybAuaGiG7XC5Fsq1cn3Tzjjx6s0m",
-        host="dpg-d0ogdqemcj7s73d5icug-a.oregon-postgres.render.com",
-        port="5432"
-    )
-
-
 # ===============================
 # Login e Controle de Sessão
 # ===============================
 
+
+# ===========================================
+# 🔑 Login de usuários e controle de sessão
+# ===========================================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     print("🚀 LOGIN acionado")
@@ -155,6 +172,10 @@ def login():
 
 
 
+
+# ===========================================
+# 🔒 Logout - Finaliza sessão
+# ===========================================
 @app.route('/logout')
 def logout():
     session.clear()
@@ -164,6 +185,10 @@ def logout():
 # Cadastro e Visualizações
 # ===============================
 
+
+# ===========================================
+# 📝 Formulário de cadastro e edição
+# ===========================================
 @app.route('/', methods=['GET', 'POST'])
 def form():
     config = carregar_config()
@@ -231,10 +256,18 @@ def form():
 
     return render_template('form.html', sucesso=sucesso, erro=erro)
 
+
+# ===========================================
+# 📝 Pagina de formulario enviado
+# ===========================================
 @app.route('/sucesso')
 def sucesso():
     return render_template('sucesso.html')
 
+
+# ===========================================
+# 📝 Pagina inscritos
+# ===========================================
 @app.route('/inscritos')
 def inscritos():
     if 'usuario' not in session:
@@ -279,12 +312,17 @@ def inscritos():
 
 
 
+
+# ===========================================
+# 📝 Pagina gerenciar
+# ===========================================
 @app.route('/gerenciar')
 def gerenciar():
     if 'usuario' not in session:
         return redirect('/login')
-    if session['nivel'] != 'admin':
-        return redirect('/acesso_negado')
+
+    if session.get('nivel') != 'Admin':
+        return redirect(url_for('menu', acesso_negado='1'))
 
     conn = conectar()
     cursor = conn.cursor()
@@ -293,12 +331,21 @@ def gerenciar():
     conn.close()
     return render_template('gerenciar.html', inscritos=inscritos)
 
+
+
+# ===========================================
+# 📝 Pagina para acesso negado usuario
+# ===========================================
 @app.route('/acesso_negado')
 def acesso_negado():
     if 'usuario' not in session:
         return redirect('/login')
     return render_template('acesso_negado.html')
 
+
+# ===========================================
+# 📝 Rota inativar cadastro
+# ===========================================
 @app.route('/inativar/<int:id>')
 def inativar(id):
     if 'usuario' not in session or session['nivel'] != 'admin':
@@ -311,6 +358,10 @@ def inativar(id):
     conn.close()
     return redirect(url_for('gerenciar'))
 
+
+# ===========================================
+# 📝 Rota Ativar Cadastro
+# ===========================================
 @app.route('/ativar/<int:id>')
 def ativar(id):
     if 'usuario' not in session or session['nivel'] != 'admin':
@@ -323,6 +374,10 @@ def ativar(id):
     conn.close()
     return redirect(url_for('gerenciar'))
 
+
+# ===========================================
+# 📝 Excluir cadastros
+# ===========================================
 @app.route('/excluir/<int:id>')
 def excluir(id):
     if 'usuario' not in session or session['nivel'] != 'admin':
@@ -335,6 +390,10 @@ def excluir(id):
     conn.close()
     return redirect(url_for('gerenciar'))
 
+
+# ===========================================
+# 📝 Formulário edição de cadastros
+# ===========================================
 @app.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar(id):
     if 'usuario' not in session or session['nivel'] != 'admin':
@@ -360,11 +419,6 @@ def editar(id):
                 voz=%s, aulas=%s, segunda_voz=%s, instrumentos=%s, outro_instrumento=%s, cifras=%s, ouvido=%s,
                 nivel_tecnico=%s, ensaios=%s, cultos=%s, motivacao=%s, experiencia=%s
             WHERE id=%s
-                nome=%s, nascimento=%s, telefone=%s, email=%s, endereco=%s, numero=%s, complemento=%s,
-                bairro=%s, cidade=%s, estado=%s, profissao=%s, estado_civil=%s, batizado=%s, perfil=%s,
-                voz=%s, aulas=%s, segunda_voz=%s, instrumentos=%s, outro_instrumento=%s, cifras=%s, ouvido=%s,
-                nivel_tecnico=%s, ensaios=%s, cultos=%s, motivacao=%s, experiencia=%s
-            WHERE id=%s
         ''', (
             dados.get('nome'), dados.get('nascimento'), dados.get('telefone'), dados.get('email'),
             dados.get('endereco'), dados.get('numero'), dados.get('complemento'), dados.get('bairro'),
@@ -372,7 +426,8 @@ def editar(id):
             dados.get('batizado'), dados.get('perfil'), dados.get('voz'), dados.get('aulas'),
             dados.get('segunda_voz'), dados.get('instrumentos'), dados.get('outro_instrumento'),
             dados.get('cifras'), dados.get('ouvido'), dados.get('nivel_tecnico'),
-            dados.get('ensaios'), dados.get('cultos'), dados.get('motivacao'), dados.get('experiencia'), id
+            dados.get('ensaios'), dados.get('cultos'), dados.get('motivacao'), dados.get('experiencia'),
+            id
         ))
         conn.commit()
         conn.close()
@@ -383,6 +438,11 @@ def editar(id):
     conn.close()
     return render_template('editar.html', inscrito=inscrito)
 
+
+
+# ===========================================
+# 📝 Formulário detalhes do cadastro
+# ===========================================
 @app.route('/detalhes/<int:id>')
 def detalhes(id):
     if 'usuario' not in session:
@@ -396,6 +456,10 @@ def detalhes(id):
     conn.close()
     return render_template('detalhes.html', inscrito=inscrito)
 
+
+# ===========================================
+# 📝 Exporta CVS - NAO ESTA SENDO UTILIZADA
+# ===========================================
 @app.route('/exportar')
 def exportar():
     if 'usuario' not in session:
@@ -418,6 +482,10 @@ def exportar():
 
     return send_file('inscritos.csv', as_attachment=True)
 
+
+# ===========================================
+# 📝 Exporta xlsx
+# ===========================================
 @app.route('/exportar_csv')
 def exportar_xlsx():
     if 'usuario' not in session:
@@ -485,8 +553,18 @@ def exportar_xlsx():
     return send_file(temp_file.name, as_attachment=True, download_name='inscritos.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
+
+# ===========================================
+# 📝 Pagina Senhas
+# ===========================================
 @app.route('/senhas')
 def senhas():
+    if 'usuario' not in session:
+        return redirect('/login')
+
+    if session.get('nivel') != 'Admin':
+        return redirect(url_for('menu', acesso_negado='1'))
+
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM usuarios")
@@ -494,23 +572,52 @@ def senhas():
     conn.close()
     return render_template('senhas.html', usuarios=usuarios)
 
+
+
+
+# ===========================================
+# 📝 Cadastros de usuarios
+# ===========================================
 @app.route('/novo_usuario', methods=['GET', 'POST'])
 def novo_usuario():
+    if 'usuario' not in session or session.get('nivel') != 'admin':
+        return redirect('/login')
+
     if request.method == 'POST':
-        usuario = request.form['usuario']
-        senha = criptografar_senha(request.form['senha'])
-        nivel = request.form['nivel']
+        usuario = request.form.get('usuario', '').strip().lower()
+        senha = request.form.get('senha', '').strip()
+        nivel = request.form.get('nivel', '').strip()
+
+        if not usuario or not senha:
+            mensagem = '❌ Usuário e senha são obrigatórios.'
+            return render_template('novo_usuario.html', mensagem=mensagem)
+
+        senha_cripto = criptografar_senha(senha)
 
         conn = conectar()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO usuarios (usuario, senha, nivel) VALUES (%s, %s, %s)", (usuario, senha, nivel))
-        cursor.execute("INSERT INTO usuarios (usuario, senha, nivel) VALUES (%s, %s, %s)", (usuario, senha, nivel))
-        conn.commit()
-        conn.close()
-        return redirect(url_for('senhas'))
+
+        # Verifica se já existe
+        cursor.execute("SELECT * FROM usuarios WHERE usuario = %s", (usuario,))
+        existente = cursor.fetchone()
+
+        if existente:
+            conn.close()
+            mensagem = f'❌ O usuário "{usuario}" já existe. Escolha outro nome.'
+            return render_template('novo_usuario.html', mensagem=mensagem)
+        else:
+            cursor.execute("INSERT INTO usuarios (usuario, senha, nivel) VALUES (%s, %s, %s)",
+                           (usuario, senha_cripto, nivel))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('senhas'))  # ✔️ Redireciona para a página senhas
+
     return render_template('novo_usuario.html')
 
 
+# ===========================================
+# 📝 Rota para excluir usuarios
+# ===========================================
 @app.route('/excluir_usuario/<int:id>')
 def excluir_usuario(id):
     conn = conectar()
@@ -521,6 +628,10 @@ def excluir_usuario(id):
     conn.close()
     return redirect(url_for('senhas'))
 
+
+# ===========================================
+# 📝 Formulário de cadastro e edição
+# ===========================================
 @app.route('/adicionar_campo', methods=['POST'])
 def adicionar_campo():
     if request.method == 'POST':
@@ -532,6 +643,10 @@ def adicionar_campo():
 
         return redirect('/layout')
 
+
+# ===========================================
+# 📝 Rota para editar usuario
+# ===========================================
 @app.route('/editar_usuario/<int:id>', methods=['GET', 'POST'])
 def editar_usuario(id):
     conn = conectar()
@@ -570,22 +685,33 @@ def editar_usuario(id):
         conn.close()
 
 
+
+# ===========================================
+# 📝 Formulário de cadastro e edição
+# ===========================================
 @app.route('/form')
 def redirecionar_para_form():
     return redirect('/')
 
 
+
+# ===========================================
+# 📝 Rota Pagina Configurações - Ativar/Desativar
+# ===========================================
 @app.route('/configuracoes', methods=['GET', 'POST'])
 def configuracoes_page():
     if 'usuario' not in session:
         return redirect('/login')
+
+    if session.get('nivel') != 'Admin':
+        return redirect(url_for('menu', acesso_negado='1'))
 
     config = carregar_config()
 
     if request.method == 'POST':
         config['formulario_ativo'] = 'formulario_ativo' in request.form
         config['audicao_ativa'] = 'audicao_ativa' in request.form
-        salvar_config(config)  
+        salvar_config(config)
 
     return render_template(
         'configuracoes.html',
@@ -593,6 +719,11 @@ def configuracoes_page():
         audicao_ativa=config['audicao_ativa']
     )
 
+
+
+# ===========================================
+# 📝 Formulário de cadastro AUDIÇÕES
+# ===========================================
 @app.route('/audicoes', methods=['GET', 'POST'])
 def audicoes():
     config = carregar_config()
@@ -638,6 +769,10 @@ def audicoes():
 
 
 
+
+# ===========================================
+# 📝 Gerenciar Audiçoes
+# ===========================================
 @app.route('/audicoes_gerencia')
 def audicoes_gerencia():
     if 'usuario' not in session:
@@ -658,13 +793,18 @@ def audicoes_gerencia():
     return render_template('audicoes_gerencia.html', dados=dados)
 
 
-
+# ===========================================
+# 📝 Thumbnail youtube
+# ===========================================
 @app.template_filter('youtube_id')
 def youtube_id(link):
     regex = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
     match = re.search(regex, link)
     return match.group(1) if match else ''
 
+# ===========================================
+# 📝 Filtro horario da inscrição audiçao
+# ===========================================
 @app.template_filter('strftime_brasil')
 def _jinja2_filter_datetime_brasil(value, fmt=None):
     if not value:
@@ -680,6 +820,10 @@ def _jinja2_filter_datetime_brasil(value, fmt=None):
     except Exception:
         return str(value)
     
+
+# ===========================================
+# 📝 Rota para excluir audição
+# ===========================================
 @app.route('/excluir_audicao/<int:id>')
 def excluir_audicao(id):
     if 'usuario' not in session:
@@ -694,6 +838,10 @@ def excluir_audicao(id):
 
     return redirect(url_for('audicoes_gerencia'))
 
+
+# ===========================================
+# 📝 Rota para arquivar audição
+# ===========================================
 @app.route('/arquivar_audicao/<int:id>')
 def arquivar_audicao(id):
     if 'usuario' not in session:
@@ -710,6 +858,10 @@ def arquivar_audicao(id):
 
     return redirect(url_for('audicoes_gerencia'))
 
+
+# ===========================================
+# 📝 Rota pagina audicoes arquivadas
+# ===========================================
 @app.route('/audicoes_arquivadas')
 def audicoes_arquivadas():
     if 'usuario' not in session:
@@ -729,6 +881,10 @@ def audicoes_arquivadas():
 
     return render_template('audicoes_arquivadas.html', dados=dados)
 
+
+# ===========================================
+# 📝 Rota para desarquivar um a audição
+# ===========================================
 @app.route('/desarquivar_audicao/<int:id>')
 def desarquivar_audicao(id):
     if 'usuario' not in session:
@@ -747,5 +903,5 @@ def desarquivar_audicao(id):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
-    #app.run(debug=True)
+    #app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True)

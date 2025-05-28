@@ -1,0 +1,23 @@
+# 🔥 Arquivos e pastas que NÃO DEVEM IR PARA O GITHUB
+
+# Ambiente virtual
+venv/
+.env
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Banco de dados local
+*.sqlite3
+
+# Logs
+*.log
+
+# Configurações locais
+config.json
+
+# Arquivos temporários
+*.swp
+*.swo
+.DS_Store

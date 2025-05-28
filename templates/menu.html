@@ -184,7 +184,40 @@
       }
   </style>
 </head>
-
+{% if acesso_negado %}
+<div id="modal-acesso" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;">
+    
+    <div style="
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 400px;">
+        
+        <h2>🚫 Acesso Negado</h2>
+        <p>Você não tem permissão para acessar essa função.</p>
+        <br>
+        <button onclick="document.getElementById('modal-acesso').style.display='none'" 
+        style="
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;">
+            ✖️ Fechar
+        </button>
+    </div>
+</div>
+{% endif %}
 <body>
 
 <div class="top-bar">
