@@ -165,6 +165,12 @@
     }
 
     /* Modo escuro */
+    .dark-mode label,
+    .dark-mode h2,
+    .dark-mode h1,
+    .dark-mode p.valor {
+      color: #ccc;
+    }
     .dark-mode {
       background-color: #2a2a2a;
       color: white;
@@ -223,7 +229,7 @@
 
 <div class="container">
   <h2>Gerenciamento de Usuários</h2>
-  <a href="/novo_usuario" class="btn-new">Novo Usuário</a>
+  <a href="/novo_usuario" class="btn-new"><i class="fas fa-user-plus"></i> Novo Usuário</a>
 
   <table>
     <thead>
@@ -239,8 +245,12 @@
         <td data-label="Usuário">{{ usuario[1] }}</td>
         <td data-label="Hierarquia">{{ usuario[3] }}</td>
         <td data-label="Ações">
-          <button onclick="location.href='/editar_usuario/{{ usuario[0] }}'" class="btn btn-edit">Editar</button>
-          <a href="/excluir_usuario/{{ usuario[0] }}" class="btn btn-delete" onclick="return confirm('Deseja excluir este usuário?')">Excluir</a>
+          <button onclick="location.href='/editar_usuario/{{ usuario[0] }}'" class="btn btn-edit" title="Editar"><i class="fas fa-edit"></i> Editar</button>
+          <form action="/excluir_usuario/{{ usuario[0] }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-delete" title="Excluir" onclick="return confirm('Deseja excluir este usuário?')">
+              <i class="fas fa-trash-alt"></i> Excluir
+            </button>
+          </form>
         </td>
       </tr>
       {% endfor %}

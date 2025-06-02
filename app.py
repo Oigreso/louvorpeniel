@@ -30,7 +30,7 @@ app.secret_key = os.getenv('SECRET_KEY')
 def conectar():
     return psycopg2.connect(os.getenv('DATABASE_URL'))
 
-VERSAO_ATUAL = "v1.3"
+VERSAO_ATUAL = "v1.4"
 
 CONFIG_FILE = 'config.json'
 
@@ -344,6 +344,26 @@ def acesso_negado():
 
 
 # ===========================================
+# 📝 Rota ajax ativa/desativar cadastro
+# ===========================================
+@app.route('/atualizar_status', methods=['POST'])
+def atualizar_status():
+    data = request.get_json()
+    id = data.get('id')
+    status = data.get('status')  # Boolean: true ou false
+
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE inscritos SET ativo = %s WHERE id = %s', (status, id))
+    conn.commit()
+    conn.close()
+
+    return jsonify({'success': True})
+
+
+
+
+# ===========================================
 # 📝 Rota inativar cadastro
 # ===========================================
 @app.route('/inativar/<int:id>')
@@ -353,10 +373,10 @@ def inativar(id):
 
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute('UPDATE inscritos SET ativo = 0 WHERE id = %s', (id,))
+    cursor.execute('UPDATE inscritos SET ativo = FALSE WHERE id = %s', (id,))
     conn.commit()
     conn.close()
-    return redirect(url_for('gerenciar'))
+    return redirect('/gerenciar')
 
 
 # ===========================================
@@ -369,10 +389,10 @@ def ativar(id):
 
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute('UPDATE inscritos SET ativo = 1 WHERE id = %s', (id,))
+    cursor.execute('UPDATE inscritos SET ativo = TRUE WHERE id = %s', (id,))
     conn.commit()
     conn.close()
-    return redirect(url_for('gerenciar'))
+    return redirect('/gerenciar')
 
 
 # ===========================================
@@ -451,10 +471,18 @@ def detalhes(id):
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM inscritos WHERE id = %s', (id,))
-    cursor.execute('SELECT * FROM inscritos WHERE id = %s', (id,))
-    inscrito = cursor.fetchone()
+    inscrito = list(cursor.fetchone())
     conn.close()
+
+    try:
+        if inscrito[2]:
+            data = datetime.strptime(str(inscrito[2]), "%Y-%m-%d")
+            inscrito[2] = data.strftime("%d/%m/%Y")
+    except Exception:
+        inscrito[2] = "Data inválida"
+
     return render_template('detalhes.html', inscrito=inscrito)
+
 
 
 # ===========================================
@@ -491,66 +519,111 @@ def exportar_xlsx():
     if 'usuario' not in session:
         return redirect(url_for('login'))
 
+    import tempfile
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+    from openpyxl.utils import get_column_letter
+    from openpyxl.drawing.image import Image
+    from datetime import datetime
+    import os
+
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM inscritos ORDER BY nome ASC')
     inscritos = cursor.fetchall()
     conn.close()
 
-    wb = openpyxl.Workbook()
+    wb = Workbook()
     ws = wb.active
     ws.title = "Inscritos"
 
-    # Títulos
-    ws.merge_cells('A1:Z1')
+    # Título e subtítulo
+    ws.merge_cells('A1:Y1')
     ws['A1'] = 'PENIEL GUILHERMINA'
-    ws['A1'].alignment = Alignment(horizontal='center')
     ws['A1'].font = Font(size=16, bold=True)
+    ws['A1'].alignment = Alignment(horizontal='left')
 
-    ws.merge_cells('A2:Z2')
+    ws.merge_cells('A2:Y2')
     ws['A2'] = 'Cadastro Ministério de Louvor'
-    ws['A2'].alignment = Alignment(horizontal='center')
     ws['A2'].font = Font(size=12, bold=True)
+    ws['A2'].alignment = Alignment(horizontal='left')
 
     # Cabeçalhos
-    cabecalhos = ['Nome', 'Nascimento', 'Telefone', 'Email', 'Endereço', 'Número', 'Complemento',
-                  'Bairro', 'Cidade', 'Estado', 'Profissão', 'Estado Civil', 'Batizado', 'Perfil',
-                  'Voz', 'Aulas', 'Segunda Voz', 'Instrumentos', 'Cifras', 'Ouvido',
-                  'Nível Técnico', 'Ensaios', 'Cultos', 'Motivação', 'Experiência', 'Status']
+    cabecalhos = [
+        'Nome', 'Nascimento', 'Telefone', 'Email', 'Endereço', 'Número', 'Complemento',
+        'Bairro', 'Cidade', 'Estado', 'Profissão', 'Estado Civil', 'Batizado', 'Perfil',
+        'Classificação Vocal', 'Aulas de Canto', 'Segunda Voz', 'Instrumentos', 'Cifras',
+        'Ouvido', 'Nível Técnico', 'Ensaios', 'Cultos', 'Motivação', 'Experiência', 'Status'
+    ]
+
+    verde = '6FCF97'
+    fill_cabecalho = PatternFill(start_color=verde, end_color=verde, fill_type='solid')
+    borda_cabecalho = Border(
+        left=Side(style='medium'),
+        right=Side(style='medium'),
+        top=Side(style='medium'),
+        bottom=Side(style='medium')
+    )
 
     for col_num, header in enumerate(cabecalhos, 1):
         cell = ws.cell(row=3, column=col_num)
         cell.value = header
-        cell.font = Font(bold=True)
-        cell.alignment = Alignment(horizontal='center')
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = fill_cabecalho
+        cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        cell.border = borda_cabecalho
 
-    # Dados
+    # Inserção dos dados
     for row_num, inscrito in enumerate(inscritos, start=4):
         dados = [
             inscrito[1], inscrito[2], inscrito[3], inscrito[4], inscrito[5], inscrito[6],
             inscrito[7], inscrito[8], inscrito[9], inscrito[10], inscrito[11], inscrito[12],
             inscrito[13], inscrito[14], inscrito[15], inscrito[16], inscrito[17], inscrito[18],
             inscrito[19], inscrito[20], inscrito[21], inscrito[22], inscrito[23], inscrito[24],
-            inscrito[25], 'Ativo' if inscrito[27] == 1 else 'Inativo'
+            inscrito[25], 'Ativo' if inscrito[27] else 'Inativo'
         ]
         for col_num, dado in enumerate(dados, 1):
-            ws.cell(row=row_num, column=col_num).value = dado
+            cell = ws.cell(row=row_num, column=col_num)
+            cell.value = dado
+            cell.alignment = Alignment(vertical='top', wrap_text=True)
+            cell.border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
 
-    # Ajuste automático das larguras
+    # Largura de colunas personalizada
     for col in ws.columns:
-        max_length = 0
-        column = get_column_letter(col[0].column)
-        for cell in col:
-            if cell.value:
-                max_length = max(max_length, len(str(cell.value)))
-        adjusted_width = max_length + 2
-        ws.column_dimensions[column].width = adjusted_width
+        col_letter = get_column_letter(col[0].column)
+        if col_letter == 'A':  # Nome
+            ws.column_dimensions[col_letter].width = 35
+        elif col_letter in ['X', 'Y']:  # Motivação e Experiência
+            ws.column_dimensions[col_letter].width = 40
+        else:
+            ws.column_dimensions[col_letter].width = min(30, max(len(str(cell.value)) for cell in col if cell.value) + 2)
 
-    # Salvar e retornar
+    # Altura padronizada
+    for row in ws.iter_rows(min_row=4, max_row=ws.max_row):
+        ws.row_dimensions[row[0].row].height = 40
+
+    # Filtro apenas sobre a coluna "Nome" (coluna A)
+    ultima_linha = ws.max_row
+    ws.auto_filter.ref = f"A3:A{ultima_linha}"
+
+    # Nome do arquivo com data
+    data_str = datetime.now().strftime('%d%m%Y')
+    nome_arquivo = f'Cadastro_Louvor_{data_str}.xlsx'
+
+    # Salvar e enviar
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
     wb.save(temp_file.name)
     temp_file.seek(0)
-    return send_file(temp_file.name, as_attachment=True, download_name='inscritos.xlsx', mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+    return send_file(temp_file.name,
+                     as_attachment=True,
+                     download_name=nome_arquivo,
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
 
@@ -903,5 +976,5 @@ def desarquivar_audicao(id):
 
 
 if __name__ == '__main__':
-    #app.run(host='0.0.0.0', port=5000, debug=True)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+    #app.run(debug=True)

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title><span>Painel</span>s</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciar Participantes</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body {
@@ -12,7 +12,6 @@
       margin: 0;
       padding: 0;
     }
-
     .top-bar {
       background-color: #d4edda;
       padding: 10px 20px;
@@ -25,14 +24,12 @@
       box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
       flex-wrap: wrap;
     }
-
     .buttons, .buttons-right {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 5px;
     }
-
     .top-bar button {
       background-color: #28a745;
       color: white;
@@ -42,32 +39,96 @@
       cursor: pointer;
       font-weight: bold;
     }
-
     .top-bar button:hover {
       background-color: #218838;
     }
-
-    .buttons button.active {
-      background-color: #138496;
-      color: white;
-      border: 2px solid #117a8b;
-    }
-
-    .buttons button.active:hover {
-      background-color: #117a8b;
-    }
-
     .container {
       max-width: 1000px;
       margin: auto;
       padding: 20px;
     }
-
     h2 {
       text-align: center;
       color: #333;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    tr:hover {
+      background-color: #e1f5e9;
+    }
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-edit { background-color: #4CAF50; color: white; }
+    .btn-delete { background-color: #f44336; color: white; }
 
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 24px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider { background-color: #28a745; }
+    input:checked + .slider::before { transform: translateX(22px); }
+    .dark-mode {
+      background-color: #2a2a2a;
+      color: white;
+    }
+    .dark-mode .top-bar { background-color: #2e413a; }
+    .dark-mode table { background-color: #1e1e1e; color: #ffffff; }
+    .dark-mode th { background-color: #3a3a3a; color: #ffffff; }
+    .dark-mode td { border-color: #555; }
+    .dark-mode label,
+    .dark-mode h3,
+    .dark-mode h4,
+    .dark-mode h2,
+    .dark-mode h1,
+    .dark-mode p {
+          color: #bdbdbd !important;
+        }
+    .dark-mode tr:nth-child(even) { background-color: #2d2d2d; }
+    .dark-mode tr:nth-child(odd) { background-color: #1e1e1e; }
+    .dark-mode tr:hover { background-color: #444 !important; }
     .search-filter {
       display: flex;
       justify-content: center;
@@ -105,122 +166,13 @@
       background-color: #5DBB85;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-
-    th, td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-
-    tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
-
-    tr:hover {
-      background-color: #e1f5e9;
-    }
-
-    .btn {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .btn-edit {
-      background-color: #4CAF50;
-      color: white;
-    }
-
-    .btn-activate {
-      background-color: #6FCF97;
-      color: white;
-    }
-
-    .btn-delete {
-      background-color: #f44336;
-      color: white;
-    }
-
-    @media (max-width: 768px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
-      }
-      tr {
-        margin-bottom: 15px;
-      }
-      td {
-        padding: 8px;
-        text-align: right;
-        position: relative;
-      }
-      td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        font-weight: bold;
-        text-align: left;
-      }
-      thead {
-        display: none;
-      }
-    }
-
-    .dark-mode {
-      background-color: #2a2a2a;
-      color: white;
-    }
-
-    .dark-mode .top-bar {
-      background-color: #2e413a;
-    }
-
-    .dark-mode table {
-      background-color: #1e1e1e;
-      color: #ffffff;
-    }
-
-    .dark-mode th {
-      background-color: #3a3a3a;
-      color: #ffffff;
-    }
-
-    .dark-mode td {
-      border-color: #555;
-    }
-
-    .dark-mode tr:nth-child(even) {
-      background-color: #2d2d2d;
-    }
-
-    .dark-mode tr:nth-child(odd) {
-      background-color: #1e1e1e;
-    }
-
-    .dark-mode tr:hover {
-      background-color: #444 !important;
-    }
+    
   </style>
 </head>
 <body>
-
-<style>
-@media (max-width: 600px) {
-  .top-bar button span {
-    display: none;
-  }
-}
-</style>
 <div class="top-bar">
   <div class="buttons">
     <button onclick="location.href='/menu'"><i class="fas fa-home"></i> <span>Inicio</span></button>
-    
   </div>
   <div class="buttons-right">
     <button onclick="toggleDarkMode()" class="icon-btn"><i class="fas fa-moon"></i></button>
@@ -228,44 +180,62 @@
   </div>
 </div>
 
-<div class="container">
-  <h2>Painel de Controle de Cadastros</h2>
-
-  <div class="search-filter">
+  <div class="container">
+    <h2>Gerenciar Cadastros</h2>
+      <div class="search-filter">
     <div class="search-container">
       <button id="toggleSearchBtn" onclick="toggleSearch()"><i class="fas fa-search"></i></button>
       <input type="text" id="searchBar" placeholder="Buscar por nome..." onkeyup="filterByName()">
     </div>
   </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inscrito in inscritos %}
+        <tr>
+          <td style="max-width: 250px; word-break: break-word;">{{ inscrito[1] }}</td>
+          <td style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <a href="/editar/{{ inscrito[0] }}" class="btn btn-edit" title="Editar"><i class="fas fa-edit"></i></a>
+            <a href="/excluir/{{ inscrito[0] }}" class="btn btn-delete" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir?')"><i class="fas fa-trash-alt"></i></a>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for inscrito in inscritos %}
-      <tr>
-        <td data-label="Nome">{{ inscrito[1] }}</td>
-        <td data-label="Ações">
-          <a href="/editar/{{ inscrito[0] }}" class="btn btn-edit">Editar</a>
-          {% if inscrito[27] == 1 %}
-            <a href="/inativar/{{ inscrito[0] }}" class="btn btn-activate">Inativar</a>
-          {% else %}
-            <a href="/ativar/{{ inscrito[0] }}" class="btn btn-activate">Ativar</a>
-          {% endif %}
-          <a href="/excluir/{{ inscrito[0] }}" class="btn btn-delete" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+            <label class="switch" title="Ativar/Inativar">
+              <input type="checkbox" onchange="toggleStatus(this, {{ inscrito[0] }})" {% if inscrito[27] %}checked{% endif %}>
+              <span class="slider"></span>
+            </label>
+            <span class="status-text" id="status-text-{{ inscrito[0] }}" style="display: inline-block; width: 60px;">
+              {% if inscrito[27] %}Ativo{% else %}Inativo{% endif %}
+            </span>
+          </td>
 
-<script>
-function toggleSearch() {
+            </td>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    function toggleAtivo(checkbox, id) {
+      const ativo = checkbox.checked ? 'true' : 'false';
+      const statusEl = document.getElementById(`status-${id}`);
+      fetch(`/toggle_ativo/${id}/${ativo}`, { method: 'POST' })
+        .then(response => {
+          if (response.ok) {
+            statusEl.textContent = ativo === 'true' ? 'Ativo' : 'Inativo';
+          } else {
+            alert("Erro ao atualizar o status.");
+            checkbox.checked = !checkbox.checked;
+          }
+        });
+    }
+
+    function toggleSearch() {
   var searchBar = document.getElementById('searchBar');
   searchBar.style.display = (searchBar.style.display === 'none' || searchBar.style.display === '') ? 'block' : 'none';
 }
@@ -286,23 +256,45 @@ function filterByName() {
 }
 
 function toggleDarkMode() {
-  const isDark = document.body.classList.toggle('dark-mode');
-  localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
 }
 
+// Aplica o modo escuro automaticamente se estiver ativado
 window.onload = function () {
-  if (localStorage.getItem('modoEscuro') === 'ativado') {
-    document.body.classList.add('dark-mode');
-  }
+    if (localStorage.getItem('modoEscuro') === 'ativado') {
+        document.body.classList.add('dark-mode');
+    }
 }
-
-function confirmLogout() {
-  if (confirm("Tem certeza que deseja sair?")) {
-    window.location.href = "/logout";
+  function toggleStatus(id, checkbox) {
+    const url = checkbox.checked ? `/ativar/${id}` : `/inativar/${id}`;
+    window.location.href = url;
   }
-}
-</script>
 
-{% include 'footer.html' %}
+  function toggleStatus(checkbox, id) {
+    const status = checkbox.checked;
+
+    fetch('/atualizar_status', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ id: id, status: status })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const statusText = document.getElementById('status-text-' + id);
+        statusText.textContent = status ? 'Ativo' : 'Inativo';
+      } else {
+        alert('Erro ao atualizar o status.');
+        checkbox.checked = !status; // volta pro estado anterior
+      }
+    })
+    .catch(error => {
+      alert('Erro de rede.');
+      checkbox.checked = !status; // volta pro estado anterior
+    });
+  }
+
+  </script>
 </body>
 </html>

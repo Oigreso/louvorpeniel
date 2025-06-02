@@ -327,17 +327,6 @@ select:focus {
 
 <body>
 
-<div class="top-bar">
-  <div class="left-buttons">
-    <button onclick="window.location.href='/menu'"><i class="fas fa-cogs"></i></button>
-  </div>
-  <div class="right-buttons">
-    <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
-    
-    </button>
-  </div>
-</div>
-
 <div id="modal-fechado" class="modal">
   <div class="modal-content">
     <div style="font-size: 50px; margin-bottom: 10px;">⚠️</div>
@@ -354,6 +343,7 @@ select:focus {
     <h2>🎧 Atenção!</h2>
     <p>Gostaríamos de passar algumas informações antes de você preencher sua <strong>INSCRIÇÃO</strong>.</p>
     <ul>
+      <li>👥 Para fazer a audição você precisa ser um <strong>membro apresentado</strong> em nossa igreja.</li>  
       <li>🎶 Escolha uma música bem conhecida e dê preferência para músicas já tocadas na <strong>Peniel Guilhermina</strong>.</li>
       <li>🎧 Nós trabalhamos com <strong>Multitracks</strong> e <strong>Metrônomo</strong>. Traga seus <strong>fones</strong> com conexão P2 no dia da audição.</li>
     </ul>
@@ -364,6 +354,18 @@ select:focus {
     </div>
   </div>
 </div>
+
+<div class="top-bar">
+  <div class="left-buttons">
+    <button onclick="window.location.href='/menu'"><i class="fas fa-cogs"></i></button>
+  </div>
+  <div class="right-buttons">
+    <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i>
+    </button>
+  </div>
+</div>
+
+
 
 <div class="container">
   <div class="logo-title">
@@ -483,12 +485,6 @@ function toggleDarkMode() {
     localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
 }
 
-window.onload = function() {
-    if (localStorage.getItem('modoEscuro') === 'ativado') {
-        document.body.classList.add('dark-mode');
-    }
-};
-
 function mostrarCampoOutroTom() {
     const tom = document.getElementById('tom').value;
     const outroDiv = document.getElementById('outroTomDiv');
@@ -498,15 +494,6 @@ function mostrarCampoOutroTom() {
         outroDiv.style.display = 'none';
     }
 }
-
-window.onload = function() {
-    const modal = document.getElementById("infoModal");
-    modal.style.display = "block";
-
-    if (localStorage.getItem('modoEscuro') === 'ativado') {
-        document.body.classList.add('dark-mode');
-    }
-};
 
 function fecharModal() {
     document.getElementById("infoModal").style.display = "none";
@@ -524,16 +511,28 @@ function colarLink() {
         });
 }
 
+
 window.onload = function () {
+    // Mostrar modal "infoModal"
+    const infoModal = document.getElementById("infoModal");
+    if (infoModal) {
+        infoModal.style.display = "block";
+    }
+
+    // Mostrar modal de inscrições fechadas
     {% if mostrar_modal %}
-    document.getElementById("modal-fechado").style.display = "flex";
+    const modalFechado = document.getElementById("modal-fechado");
+    if (modalFechado) {
+        modalFechado.style.display = "flex";
+    }
     {% endif %}
 
+    // Ativar modo escuro, se estiver salvo
     if (localStorage.getItem('modoEscuro') === 'ativado') {
         document.body.classList.add('dark-mode');
     }
 };
-
+ 
 </script>
 
 </body>

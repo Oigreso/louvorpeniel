@@ -229,18 +229,115 @@
             background-color: #402020 !important;
             color: #bbb;
             }
+.telefone-celula {
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
 
-</style>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet"/>
-</head>
-<body>
-<style>
+.telefone-celula a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    text-decoration: none;
+    color: #1fae54;
+    font-weight: bold;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.telefone-celula a:hover {
+    background-color: rgba(37, 211, 101, 0.183);
+    border-radius: 10px;
+}
+
+@media (min-width: 768px) {
+  .whatsapp-link::after {
+    content: "Clique para enviar mensagem no WhatsApp";
+    position: absolute;
+    background-color: #333;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 5px;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    font-size: 12px;
+    z-index: 1000;
+  }
+
+  .whatsapp-link:hover::after {
+    opacity: 1;
+  }
+}
+
 @media (max-width: 600px) {
   .top-bar button span {
     display: none;
   }
 }
+.tabela-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #ccc;
+}
+
+/* Travar o cabeçalho da tabela */
+#tabelaInscritos thead th {
+    position: sticky;
+    top: 0;
+    background-color: #37864d; /* ou outra cor para modo escuro */
+    z-index: 2;
+    box-shadow: 0 2px 2px -1px rgba(0,0,0,0.4);
+}
+
+/* Barra de rolagem estilizada */
+.tabela-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.tabela-container::-webkit-scrollbar-track {
+    background: #e0e0e0;
+    border-radius: 10px;
+}
+
+.tabela-container::-webkit-scrollbar-thumb {
+    background-color: #80cfa9;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+}
+
+.tabela-container::-webkit-scrollbar-thumb:hover {
+    background-color: #55b68e;
+}
+
+/* Para modo escuro */
+.dark-mode .tabela-container::-webkit-scrollbar-track {
+    background: #333;
+}
+
+.dark-mode .tabela-container::-webkit-scrollbar-thumb {
+    background-color: #5cc397;
+    border: 2px solid #333;
+}
+
+.dark-mode .tabela-container::-webkit-scrollbar-thumb:hover {
+    background-color: #41a67a;
+}
+
 </style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet"/>
+</head>
+<body>
+
 <div class="top-bar">
 <div class="buttons">
 <button onclick="location.href='/menu'"><i class="fas fa-home"></i> <span>Inicio</span></button>
@@ -310,8 +407,9 @@
 <div style="text-align: center; margin-top: 10px;">
 <button id="limparFiltrosBtn" onclick="limparFiltros()" style="background-color: #f18484; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; display: none;">Limpar Filtros</button>
 </div>
-<div class="table-container">
+<div class="tabela-container">
 <table id="tabelaInscritos">
+
 <thead>
 <tr>
 <th>Nome</th>
@@ -331,7 +429,14 @@
 <tbody>
         {% for inscrito in inscritos %}
          <tr class="{% if inscrito[27] == 0 %}inativo{% endif %} {% if inscrito[26] == 0 %}inativo{% endif %}" data-status="{{ inscrito[27] }}" onclick="window.location.href='/detalhes/{{ inscrito[0] }}';"> <td><strong>{{ inscrito[1] }}</strong></td>
-<td>{{ inscrito[3] }}</td>
+<td class="telefone-celula">
+  <a href="https://wa.me/55{{ inscrito[3]|replace('(', '')|replace(')', '')|replace('-', '')|replace(' ', '') }}" 
+     target="_blank" 
+     class="whatsapp-link"
+     onclick="event.stopPropagation();">
+     <i class="fab fa-whatsapp"></i> {{ inscrito[3] }}
+  </a>
+</td>
 <td>{{ inscrito[4] }}</td>
 <td>{{ inscrito[14] }}</td>
 <td>{{ inscrito[18] }}</td>
@@ -347,6 +452,7 @@
     </tbody>
 </table>
 </div>
+
 <script>
 function ordenarTabelaPorStatus() {
     var tabela = document.getElementById('tabelaInscritos');

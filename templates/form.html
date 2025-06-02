@@ -249,6 +249,60 @@
   cursor: pointer;
 }
 
+.botao-configuracoes {
+  background: none !important;
+  border: none !important;
+  color: rgba(52, 104, 60, 0.585) !important;
+  font-size: 1.4em !important;
+  cursor: pointer !important;
+  padding: 6px !important;
+  border-radius: 8px !important;
+  transition: background-color 0.3s ease !important;
+}
+
+.botao-configuracoes:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark-mode .botao-configuracoes:hover {
+  background-color: rgba(255, 255, 255, 0.061) !important;
+}
+
+/* Barra de rolagem estilizada para toda a página */
+body::-webkit-scrollbar {
+    width: 10px;
+}
+
+body::-webkit-scrollbar-track {
+    background: #e0e0e0;
+    border-radius: 10px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: #80cfa9;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background-color: #55b68e;
+}
+
+/* Para modo escuro */
+.dark-mode body::-webkit-scrollbar-track {
+    background: #333;
+}
+
+.dark-mode body::-webkit-scrollbar-thumb {
+    background-color: #5cc397;
+    border: 2px solid #333;
+}
+
+.dark-mode body::-webkit-scrollbar-thumb:hover {
+    background-color: #41a67a;
+}
+
+
 
 </style>
 
@@ -316,9 +370,19 @@ function toggleDarkMode() {
 </div>
 
 <div class="top-bar">
-  <div class="buttons">
-    <button onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+  <div style="margin-right: auto;">
+    <button class="botao-configuracoes" onclick="window.location.href='/menu'" title="Gerenciar">
+      <i class="fas fa-cogs"></i>
+    </button>
   </div>
+  <div class="right-buttons">
+    <button onclick="toggleDarkMode()" title="Modo Escuro">
+      <i class="fas fa-moon"></i>
+    </button>
+  </div>
+</div>
+
+
 </div>
 <div class="container">
 
@@ -519,12 +583,17 @@ function toggleDarkMode() {
     localStorage.setItem('modoEscuro', isDark ? 'ativado' : 'desativado');
 }
 
-// Aplica o modo escuro automaticamente se estiver ativado
 window.onload = function () {
+    // Aplica o modo escuro, se estiver ativado
     if (localStorage.getItem('modoEscuro') === 'ativado') {
         document.body.classList.add('dark-mode');
     }
-}
+
+    // Exibe modal, se necessário
+    {% if mostrar_modal %}
+    document.getElementById("modal-fechado").style.display = "flex";
+    {% endif %}
+};
 
 document.addEventListener('DOMContentLoaded', function() {
     const nomeInput = document.getElementById('nome');
@@ -563,11 +632,20 @@ document.addEventListener('DOMContentLoaded', function() {
                                       }
                                   } else {
                                       elemento.value = data.dados[campo];
+                                      if (campo === "perfil") {
+                                          atualizarPerfil();  // <- chama a função que exibe os blocos certos
+                                      }
                                   }
-                              } else if (tipo === "input" || tipo === "textarea") {
-                                  elemento.value = data.dados[campo];
-                              }
 
+                              } else if (tipo === "input" || tipo === "textarea") {
+                                  if (campo === "nascimento" && data.dados[campo]) {
+                                      const dataOriginal = new Date(data.dados[campo]);
+                                      const dataFormatada = dataOriginal.toISOString().split('T')[0]; // yyyy-mm-dd
+                                      elemento.value = dataFormatada;
+                                  } else {
+                                      elemento.value = data.dados[campo];
+                                  }
+                              }
 
                             }
                         }
@@ -586,11 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
     nomeInput.addEventListener('blur', verificarCadastro);
     nascimentoInput.addEventListener('blur', verificarCadastro);
 });
- window.onload = function () {
-    {% if mostrar_modal %}
-    document.getElementById("modal-fechado").style.display = "flex";
-    {% endif %}
-  }
+
 </script>
 
 {% include 'footer.html' %}

@@ -161,6 +161,7 @@
 
     .dark-mode label,
     .dark-mode h2,
+    .dark-mode h1,
     .dark-mode p.valor {
       color: #ccc;
     }
@@ -214,10 +215,11 @@
       <div class="line-entry"><label>Tira música de ouvido:</label><p class="valor">{{ inscrito[21] }}</p></div>
       <div class="line-entry"><label>Nível técnico:</label><p class="valor">{{ inscrito[22] }}</p></div>
     {% endif %}
-    {% if inscrito[14] == 'Cantor' or inscrito[14] == 'Ambos' %}
+    {% set perfil = inscrito[14]|lower|trim %}
+    {% if 'cantor' in perfil or 'ambos' in perfil %}
       <div class="line-entry"><label>Classificação Vocal:</label><p class="valor">{{ inscrito[15] }}</p></div>
       <div class="line-entry"><label>Aulas de canto:</label><p class="valor">{{ inscrito[16] }}</p></div>
-      <div class="line-entry"><label>Segunda voz:</label><p class="valor">{{ inscrito[17] }}</p></div>
+      <div class="line-entry"><label>Divisão de vozes:</label><p class="valor">{{ inscrito[17] }}</p></div>
     {% endif %}
   </div>
 

@@ -151,6 +151,29 @@
     .dark-mode .card h2 {
       color: #bdbdbd;
     }
+
+.campo-senha {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.campo-senha input {
+  width: 100%;
+  padding-right: 40px; /* espaço para o ícone */
+}
+
+.campo-senha i {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #888;
+  font-size: 1.1em;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+
   </style>
 </head>
 <body>
@@ -175,7 +198,12 @@
       {% endif %}
       <form method="POST">
         <input type="text" name="usuario" placeholder="Usuário" required>
-        <input type="password" name="senha" placeholder="Senha" required>
+        <div class="campo-senha">
+          <input type="password" id="senha" name="senha" placeholder="Senha" required onkeyup="verificaCapsLock(event)">
+          <i class="fas fa-eye" id="icone-senha" onclick="toggleSenha()"></i>
+        </div>
+        <small id="aviso-caps" style="color: red; display: none;">⚠️ Caps Lock está ativado</small>
+
         <button type="submit">Entrar</button>
       </form>
     </div>
@@ -192,7 +220,30 @@
         document.body.classList.add('dark-mode');
       }
     }
-  </script>
+ 
+  function toggleSenha() {
+    const input = document.getElementById("senha");
+    const icone = document.getElementById("icone-senha");
+    if (input.type === "password") {
+      input.type = "text";
+      icone.classList.remove("fa-eye");
+      icone.classList.add("fa-eye-slash");
+    } else {
+      input.type = "password";
+      icone.classList.remove("fa-eye-slash");
+      icone.classList.add("fa-eye");
+    }
+    }
+
+  function verificaCapsLock(e) {
+    const aviso = document.getElementById("aviso-caps");
+    const caps = e.getModifierState && e.getModifierState("CapsLock");
+    aviso.style.display = caps ? "inline" : "none";
+  }
+
+
+</script>
+
 
 {% include 'footer.html' %}
 
